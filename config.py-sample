@@ -1,0 +1,20 @@
+aws_config = dict(
+    aws_access_key_id='',
+    aws_secret_access_key='',
+    region_name=''
+)
+
+twitter_config = dict(
+    development=dict(
+        consumer_key='',
+        consumer_secret='',
+        access_token='',
+        access_secret='',
+    ),
+    production=dict(
+        consumer_key='',
+        consumer_secret='',
+        access_token='',
+        access_secret='',
+    )
+)

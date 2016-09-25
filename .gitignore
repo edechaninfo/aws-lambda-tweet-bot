@@ -1,0 +1,10 @@
+.vscode
+*.pyc
+*.zip
+feedparser*
+six*
+examples/
+oauthlib*/
+requests*/
+tweepy*/
+config.py
