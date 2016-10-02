@@ -1,0 +1,38 @@
+import feedparser
+
+from aws_lambda_tweet_bot.utils import get_dynamodb_table, get_tweepy_api
+
+
+SERVICE_ID = 'blog-watch'
+
+
+def bot_handler(env):
+    blog_table = get_dynamodb_table('blog_watch')
+    blog_data = blog_table.scan()
+    for blog_item in blog_data['Items']:
+        feed_url = blog_item['feed']
+        latest_id = blog_item['latest_id']
+        updated = False
+        news_dic = feedparser.parse(feed_url)
+        for entry in news_dic['entries']:
+            if (latest_id < entry.id and 
+                blog_item['search_condition'] in entry.title):
+                twbody = blog_item['body_format'].format(**entry)
+                api = get_tweepy_api(env['twitter_env'])
+
+                tw_success = True
+                try:
+                    api.update_status(twbody)
+                    updated = True
+                    print 'Tweet Success!\n' + twbody.encode('utf_8')
+                except TweepError as e:
+                    if 'Status is a duplicate.' not in e.reason:
+                        tw_success = False
+                        print str(e)
+                if tw_success:
+                    blog_item['latest_id'] = entry.id
+                    blog_table.put_item(Item=blog_item)
+                break
+        if not updated:
+            print "No blog update"
+    return None  # no need to update env
