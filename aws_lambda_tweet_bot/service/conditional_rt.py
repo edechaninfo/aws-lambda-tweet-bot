@@ -59,7 +59,7 @@ def bot_handler(env):
                         status.text.encode('utf_8')
                 except TweepError as e:
                     if 'You have already retweeted this tweet.' \
-                        not in e.reason:
+                            not in e.reason:
                         success = False
                         print str(e)
             if since_id < status.id:
