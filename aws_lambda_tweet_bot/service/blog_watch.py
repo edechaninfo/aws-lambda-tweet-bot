@@ -22,8 +22,8 @@ from aws_lambda_tweet_bot.utils import get_dynamodb_table, get_tweepy_api
 SERVICE_ID = 'blog-watch'
 
 
-def bot_handler(env):
-    blog_table = get_dynamodb_table('blog_watch')
+def bot_handler(env, conf):
+    blog_table = get_dynamodb_table('blog_watch', conf)
     blog_data = blog_table.scan()
     for blog_item in blog_data['Items']:
         feed_url = blog_item['feed']
@@ -34,7 +34,7 @@ def bot_handler(env):
             if (latest_id < entry.id and
                     blog_item['search_condition'] in entry.title):
                 twbody = blog_item['body_format'].format(**entry)
-                api = get_tweepy_api(env['twitter_env'])
+                api = get_tweepy_api(env['twitter_env'], conf)
 
                 tw_success = True
                 try:

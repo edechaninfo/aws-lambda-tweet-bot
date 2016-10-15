@@ -17,4 +17,4 @@ requests*/
 tweepy*/
 s3transfer*/
 python_dateutil*
-config.py
+credentials.conf
