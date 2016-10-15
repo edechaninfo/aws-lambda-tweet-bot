@@ -13,6 +13,9 @@
 # limitations under the License.
 
 
+import os
+
+from config import Config
 from aws_lambda_tweet_bot.utils import get_dynamodb_table
 from aws_lambda_tweet_bot.service import blog_watch, conditional_rt
 
@@ -23,14 +26,14 @@ SERVICES = [
 ]
 
 
-def lambda_handler(event, context):
-    env_table = get_dynamodb_table('env')
+def tweet_bot_main(event, context, conf):
+    env_table = get_dynamodb_table('env', conf)
     envs = env_table.scan()
     for env in envs['Items']:
         for srv in SERVICES:
             if srv.SERVICE_ID == env['service_id']:
                 try:
-                    success = srv.bot_handler(env)
+                    success = srv.bot_handler(env, conf)
                     if success:
                         # update env
                         env_table.put_item(Item=env)
@@ -38,6 +41,16 @@ def lambda_handler(event, context):
                     print "Error in executing '%s' service: %s" % \
                         (srv.SERVICE_ID, str(e))
                 break
+
+
+def lambda_handler(event, context):
+    """
+    This is a start point from AWS Lambda
+    """
+    dir = os.path.dirname(__file__)
+    conf_file = os.path.join(dir, 'credentials.conf')
+    conf = Config(conf_file)
+    tweet_bot_main(event, context, conf)
 
 
 if __name__ == "__main__":

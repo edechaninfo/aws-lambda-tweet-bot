@@ -21,9 +21,9 @@ from aws_lambda_tweet_bot.utils import get_dynamodb_table, get_tweepy_api
 SERVICE_ID = 'conditional-rt'
 
 
-def bot_handler(env):
-    tapi = get_tweepy_api(env['twitter_env'])
-    watch_tbl = get_dynamodb_table('tweet_watch')
+def bot_handler(env, conf):
+    tapi = get_tweepy_api(env['twitter_env'], conf)
+    watch_tbl = get_dynamodb_table('tweet_watch', conf)
     scan_data = watch_tbl.scan()
     since_id = env['since_id']
     success = True

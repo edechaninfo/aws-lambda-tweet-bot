@@ -16,10 +16,8 @@
 import boto3
 import tweepy
 
-from config import tenant_id, aws_config, twitter_config
 
-
-def get_dynamodb_table_name(table_name):
+def get_dynamodb_table_name(tenant_id, table_name):
     '''
     For multiple tenant feature, each dynamo DB's table name should start with
     tenant_id.
@@ -27,13 +25,14 @@ def get_dynamodb_table_name(table_name):
     return '%s_%s' % (tenant_id, table_name)
 
 
-def get_dynamodb_table(table_name):
-    dynamo = boto3.resource('dynamodb', **aws_config)
-    env_table_name = get_dynamodb_table_name(table_name)
+def get_dynamodb_table(table_name, conf):
+    dynamo = boto3.resource('dynamodb', **conf.aws_config)
+    env_table_name = get_dynamodb_table_name(conf.tenant_id, table_name)
     return dynamo.Table(env_table_name)
 
 
-def get_tweepy_api(env):
+def get_tweepy_api(env, conf):
+    twitter_config = conf.twitter_config
     auth = tweepy.OAuthHandler(twitter_config[env]['consumer_key'],
                                twitter_config[env]['consumer_secret'])
     auth.set_access_token(twitter_config[env]['access_token'],
