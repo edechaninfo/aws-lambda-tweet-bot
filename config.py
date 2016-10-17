@@ -42,7 +42,10 @@ class Config(object):
         )
     )
 
-    def __init__(self, conf_file):
+    def __init__(self, conf_file=None):
+        if conf_file is None:
+            # conf_file is not specified. Return empty config
+            return
         if not os.path.exists(conf_file):
             print "Not Found Config File: " + conf_file
             return
