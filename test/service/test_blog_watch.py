@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mock import MagicMock, patch
+from mock import patch
 import unittest
 
 from config import Config
-from aws_lambda_tweet_bot import utils
 from aws_lambda_tweet_bot.service import blog_watch
 
 
@@ -33,17 +32,17 @@ class TestBlogWatch(unittest.TestCase):
         self.config = Config()
 
     def test_empty_blogs(self):
-        with patch("aws_lambda_tweet_bot.service.blog_watch.get_dynamodb_table",
-                   return_value=FakeBlogTable([])):
+        target = "aws_lambda_tweet_bot.service.blog_watch.get_dynamodb_table"
+        with patch(target, return_value=FakeBlogTable([])):
             ret = blog_watch.bot_handler(None, self.config)
         self.assertEqual(None, ret)
 
     def test_not_found_feed(self):
+        target = "aws_lambda_tweet_bot.service.blog_watch.get_dynamodb_table"
         wrong_feed_item = dict(
             feed="http://noexistsite.io/feed"
         )
-        with patch("aws_lambda_tweet_bot.service.blog_watch.get_dynamodb_table",
-                   return_value=FakeBlogTable([wrong_feed_item])):
+        with patch(target, return_value=FakeBlogTable([wrong_feed_item])):
             ret = blog_watch.bot_handler(None, self.config)
         self.assertEqual(None, ret)
 

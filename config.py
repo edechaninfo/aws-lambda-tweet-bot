@@ -20,13 +20,13 @@ from ConfigParser import SafeConfigParser
 class Config(object):
     # default values
     values = dict(
-        tenant_id = '',
-        aws_config = dict(
+        tenant_id='',
+        aws_config=dict(
             aws_access_key_id='',
             aws_secret_access_key='',
             region_name=''
         ),
-        twitter_config = dict(
+        twitter_config=dict(
             development=dict(
                 consumer_key='',
                 consumer_secret='',
