@@ -16,7 +16,6 @@
 import feedparser
 
 from tweepy import TweepError
-from aws_lambda_tweet_bot import utils
 from aws_lambda_tweet_bot.utils import get_dynamodb_table, get_tweepy_api
 
 
@@ -32,8 +31,9 @@ def bot_handler(env, conf):
         updated = False
         news_dic = feedparser.parse(feed_url)
         for entry in news_dic['entries']:
-            if (latest_id is not None or (latest_id < entry.id and
-                    blog_item['search_condition'] in entry.title)):
+            if (latest_id is not None or
+                    (latest_id < entry.id and
+                     blog_item['search_condition'] in entry.title)):
                 twbody = blog_item['body_format'].format(**entry)
                 api = get_tweepy_api(env['twitter_env'], conf)
 

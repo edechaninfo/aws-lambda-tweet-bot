@@ -21,4 +21,7 @@ setuptools.setup(name='aws_lambda_tweet_bot',
                  author='edechaninfo',
                  author_email='edechaninfo@gmail.com',
                  packages=setuptools.find_packages(),
-                 test_suite='test')
+                 test_suite='test',
+                 setup_requires=[
+                     "flake8"
+                 ])
