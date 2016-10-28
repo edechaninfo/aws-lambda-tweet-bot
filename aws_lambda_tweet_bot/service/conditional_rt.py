@@ -32,43 +32,67 @@ def bot_handler(env, conf):
     since_id = env['since_id']
     success = True
     for condition in scan_data['Items']:
-        tweets = []
         try:
-            if condition['type'] == 'user':
-                tweets = tapi.user_timeline(condition['account'],
-                                            since_id=env['since_id'])
-            elif condition['type'] == 'list':
-                tweets = tapi.list_timeline(
-                    owner_screen_name=condition['account'],
-                    slug=condition['slug'],
-                    since_id=env['since_id'])
+            try:
+                type = condition['type']
+                account = condition['account']
+            except KeyError as e:
+                errKey = str(e)[1:-1]
+                raise KeyError('%s field is required' % errKey)
+            tweets = []
+            env_since_id = env.get('since_id', 1)
+            if type == 'user':
+                try:
+                    tweets = tapi.user_timeline(account,
+                                                since_id=env_since_id)
+                except TweepError as e:
+                    errMsg = ("Cannot get timeline for user:{account} "
+                              "[id {id}]").format(**condition)
+                    logger.error("%s: message=%s", errMsg, str(e))
+                    success = False
+                    continue
+            elif type == 'list':
+                slug = condition.get('slug')
+                if not slug:
+                    raise KeyError('slug field is required for list type')
+                try:
+                    tweets = tapi.list_timeline(owner_screen_name=account,
+                                                slug=slug,
+                                                since_id=env_since_id)
+                except TweepError as e:
+                    errMsg = ("Cannot get timeline for list:{account}:"
+                              "{slug} [id {id}]").format(**condition)
+                    logger.error("%s: message=%s", errMsg, str(e))
+                    success = False
+                    continue
             else:
-                logger.warning("Skip '%v' because of unknown account type" %
+                logger.warning("Skip '%s' because of unknown account type" %
                                condition)
                 continue
-        except TweepError as e:
-            logger.error("Cannot get timeline for "
-                         "{type}:{account} [id {id}]".format(**condition))
-            continue
 
-        for status in tweets:
-            matches = False
-            for str_cond in condition.get('match_strings', []):
-                if str_cond in status.text:
-                    matches = True
-                    break
-            if matches:
-                try:
-                    tapi.retweet(status.id)
-                    logger.info("Retweeted successfully: \n" +
-                                status.text.encode('utf_8'))
-                except TweepError as e:
-                    if 'You have already retweeted this tweet.' \
-                            not in e.reason:
-                        success = False
-                        logger.error(str(e))
-            if since_id < status.id:
-                since_id = status.id
+            for status in tweets:
+                matches = False
+                for str_cond in condition.get('match_strings', []):
+                    if str_cond in status.text:
+                        matches = True
+                        break
+                if matches:
+                    try:
+                        tapi.retweet(status.id)
+                        logger.info("Retweeted successfully: \n" +
+                                    status.text.encode('utf_8'))
+                    except TweepError as e:
+                        if 'You have already retweeted this tweet.' \
+                                not in e.reason:
+                            success = False
+                            logger.error(str(e))
+                if since_id < status.id:
+                    since_id = status.id
+        except Exception as e:
+            errmsg = "Unexpected error on service {}: " + \
+                     "Please check DB record (id: {}): Msg -> {}"
+            logger.error(errmsg.format(SERVICE_ID, condition.get('id'),
+                                       str(e)))
 
     if success:
         env['since_id'] = since_id
