@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 
 from tweepy import TweepError
 
@@ -19,9 +20,12 @@ from aws_lambda_tweet_bot.utils import get_dynamodb_table, get_tweepy_api
 
 
 SERVICE_ID = 'conditional-rt'
+logger = logging.getLogger('aws_lambda_tweet_bot.service.conditional_rt')
+logger.setLevel(logging.INFO)
 
 
 def bot_handler(env, conf):
+    logger.info('service "{}" started!"'.format(SERVICE_ID))
     tapi = get_tweepy_api(env['twitter_env'], conf)
     watch_tbl = get_dynamodb_table('tweet_watch', conf)
     scan_data = watch_tbl.scan()
@@ -39,11 +43,12 @@ def bot_handler(env, conf):
                     slug=condition['slug'],
                     since_id=env['since_id'])
             else:
-                print "Skip '%v' because of unknown account type" % condition
+                logger.warning("Skip '%v' because of unknown account type" %
+                               condition)
                 continue
         except TweepError as e:
-            print "Cannot get timeline for " \
-                  "{type}:{account} [id {id}]".format(**condition)
+            logger.error("Cannot get timeline for "
+                         "{type}:{account} [id {id}]".format(**condition))
             continue
 
         for status in tweets:
@@ -55,13 +60,13 @@ def bot_handler(env, conf):
             if matches:
                 try:
                     tapi.retweet(status.id)
-                    print "Retweeted successfully: " + \
-                        status.text.encode('utf_8')
+                    logger.info("Retweeted successfully: \n" +
+                                status.text.encode('utf_8'))
                 except TweepError as e:
                     if 'You have already retweeted this tweet.' \
                             not in e.reason:
                         success = False
-                        print str(e)
+                        logger.error(str(e))
             if since_id < status.id:
                 since_id = status.id
 
