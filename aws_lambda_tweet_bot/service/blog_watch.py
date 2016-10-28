@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 
 import feedparser
 
@@ -20,9 +21,12 @@ from aws_lambda_tweet_bot.utils import get_dynamodb_table, get_tweepy_api
 
 
 SERVICE_ID = 'blog-watch'
+logger = logging.getLogger('aws_lambda_tweet_bot.service.blog_watch')
+logger.setLevel(logging.INFO)
 
 
 def bot_handler(env, conf):
+    logger.info('service "{}" started!"'.format(SERVICE_ID))
     blog_table = get_dynamodb_table('blog_watch', conf)
     blog_data = blog_table.scan()
     for blog_item in blog_data['Items']:
@@ -31,7 +35,7 @@ def bot_handler(env, conf):
         updated = False
         news_dic = feedparser.parse(feed_url)
         for entry in news_dic['entries']:
-            if (latest_id is not None or
+            if (latest_id is not None and
                     (latest_id < entry.id and
                      blog_item['search_condition'] in entry.title)):
                 twbody = blog_item['body_format'].format(**entry)
@@ -41,15 +45,15 @@ def bot_handler(env, conf):
                 try:
                     api.update_status(twbody)
                     updated = True
-                    print 'Tweet Success!\n' + twbody.encode('utf_8')
+                    logger.info('Tweet Success!\n' + twbody.encode('utf_8'))
                 except TweepError as e:
                     if 'Status is a duplicate.' not in e.reason:
                         tw_success = False
-                        print str(e)
+                        logger.error(str(e))
                 if tw_success:
                     blog_item['latest_id'] = entry.id
                     blog_table.put_item(Item=blog_item)
                 break
         if not updated:
-            print "No blog update"
+            logger.info("No blog update")
     return None  # no need to update env

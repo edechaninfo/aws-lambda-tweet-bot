@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import logging
 import os
+import sys
 
 from config import Config
 from aws_lambda_tweet_bot.utils import get_dynamodb_table
@@ -24,9 +25,12 @@ SERVICES = [
     blog_watch,
     conditional_rt
 ]
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 def tweet_bot_main(event, context, conf):
+    logger.info('got event {}'.format(event))
     env_table = get_dynamodb_table('env', conf)
     envs = env_table.scan()
     for env in envs['Items']:
@@ -38,8 +42,8 @@ def tweet_bot_main(event, context, conf):
                         # update env
                         env_table.put_item(Item=env)
                 except Exception as e:
-                    print "Error in executing '%s' service: %s" % \
-                        (srv.SERVICE_ID, str(e))
+                    logger.error("Error in executing '%s' service: %s" %
+                                 (srv.SERVICE_ID, str(e)))
                 break
 
 
@@ -54,4 +58,12 @@ def lambda_handler(event, context):
 
 
 if __name__ == "__main__":
+    # This handler is used for local env debug
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s '
+                                  '- %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
     lambda_handler(None, None)

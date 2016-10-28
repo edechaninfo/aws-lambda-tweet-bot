@@ -12,9 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import logging
 import os
 from ConfigParser import SafeConfigParser
+
+
+logger = logging.getLogger('config')
+logger.setLevel(logging.INFO)
 
 
 class Config(object):
@@ -47,7 +51,7 @@ class Config(object):
             # conf_file is not specified. Return empty config
             return
         if not os.path.exists(conf_file):
-            print "Not Found Config File: " + conf_file
+            logger.warning("Not Found Config File: " + conf_file)
             return
         p = SafeConfigParser()
         p.read(conf_file)
@@ -68,8 +72,8 @@ class Config(object):
         try:
             return parser.get(section, option)
         except Exception:
-            print "Read config error: section: %s, option: %s" % \
-                (section, option)
+            logger.warning("Read config error: section: %s, option: %s" %
+                           (section, option))
         return ""
 
     @property
