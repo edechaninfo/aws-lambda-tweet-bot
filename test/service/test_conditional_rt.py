@@ -70,6 +70,22 @@ class TestConditionalRT(unittest.TestCase):
         self.assertIn(789065945014135025, mock_tweepy._retweet_ids)
         self.assertIn(789058945014135025, mock_tweepy._retweet_ids)
 
+    def test_user_timeline_with_photo(self):
+        tweet_watches = [
+            dict(id=5, type='user', account='acc', match_strings=['Ede-chan'],
+                 photo=True)
+        ]
+        mock_dynamodb = FakeDynamodbTable(tweet_watches)
+        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)))
+        env = dict(twitter_env='test', since_id=709025945014135025)
+
+        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self.assertEqual(3, len(mock_tweepy._retweet_ids))
+        self.assertEqual(789035945014145025, env['since_id'])
+        self.assertIn(789035945014145025, mock_tweepy._retweet_ids)
+        self.assertIn(789029558014135025, mock_tweepy._retweet_ids)
+        self.assertIn(789025945014135025, mock_tweepy._retweet_ids)
+
     def test_multiple_timeline(self):
         tweet_watches = [
             dict(id=5, type='user', account='acc',
@@ -142,6 +158,19 @@ class TestConditionalRT(unittest.TestCase):
 
         self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
         self.assertEqual(0, len(mock_tweepy._retweet_ids))
+        self.assertEqual(789035945014145025, env['since_id'])
+
+    def test_empty_match_strings_and_photo(self):
+        tweet_watches = [
+            dict(id=5, type='user', account='acc', photo=True)
+        ]
+        mock_dynamodb = FakeDynamodbTable(tweet_watches)
+        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)))
+        env = dict(twitter_env='test', since_id=709025945014135025)
+
+        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self.assertEqual(1, len(mock_tweepy._retweet_ids))
+        self.assertIn(789029558014135025, mock_tweepy._retweet_ids)
         self.assertEqual(789035945014145025, env['since_id'])
 
     def test_list_timeline_get_error(self):

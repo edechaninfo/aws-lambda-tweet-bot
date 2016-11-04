@@ -21,4 +21,4 @@ English version will be available soon...
 # 実装済み機能
 
 - ブログ更新情報通知機能（現在、アメブロのみ対応）
-- Twitterアカウント、リストのタイムラインの条件付きRetweet機能（文字列部分一致のみ対応）
+- Twitterアカウント、リストのタイムラインの条件付きRetweet機能（文字列部分一致、画像付き判定対応）
