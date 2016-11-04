@@ -21,6 +21,24 @@ sample_user_statuses = [
         "text": "Ede-chan is promising voice actor"
     },
     {
+        "id": 789029558014135025,
+        "text": "Recording will start soon :)",
+        "extended_entities": {
+            'media': [
+                {
+                    'id': 794502295782232064,
+                    'media_url': 'http://pbs.twimg.com/media/hogehoge.jpg',
+                    'type': 'photo'
+                },
+                {
+                    'id': 794502295782232065,
+                    'media_url': 'http://pbs.twimg.com/media/fugafuga.jpg',
+                    'type': 'photo'
+                }
+            ]
+        }
+    },
+    {
         "id": 789025958014135025,
         "text": "New anime program will be available soon"
     },

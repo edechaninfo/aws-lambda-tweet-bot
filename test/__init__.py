@@ -101,6 +101,10 @@ class FakeStatus(object):
     def text(self):
         return self.status['text']
 
+    @property
+    def extended_entities(self):
+        return self.status['extended_entities']
+
 
 class FakeTweepyApi(object):
     def __init__(self, statuses={}):

@@ -76,6 +76,9 @@ def bot_handler(env, conf):
                     if str_cond in status.text:
                         matches = True
                         break
+                if condition.get('photo'):
+                    if hasattr(status, 'extended_entities'):
+                        matches = True
                 if matches:
                     try:
                         tapi.retweet(status.id)
