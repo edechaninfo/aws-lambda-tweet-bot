@@ -86,6 +86,25 @@ class TestConditionalRT(unittest.TestCase):
         self.assertIn(789029558014135025, mock_tweepy._retweet_ids)
         self.assertIn(789025945014135025, mock_tweepy._retweet_ids)
 
+    def test_list_timeline_with_blacklist(self):
+        tweet_watches = [
+            dict(id=6, type='list', account='acc', slug='list',
+                 match_strings=['Ede-chan'],
+                 blacklist_keywords=['Maria-chan'])
+        ]
+        mock_dynamodb = FakeDynamodbTable(tweet_watches)
+        mock_tweepy = FakeTweepyApi(dict(list=dict(acc=dict(
+            list=sample_list_statuses))))
+        env = dict(twitter_env='test', since_id=788058945014135025)
+
+        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self.assertEqual(1, len(mock_tweepy._retweet_ids))
+        self.assertEqual(789085945014145025, env['since_id'])
+        self.assertIn(789065945014135025, mock_tweepy._retweet_ids)
+        self.assertIn("Keyword 'Maria-chan' is blacklist so following "
+                      "tweet is not retweeted",
+                      self.logger.lines_dict['info'][-1])
+
     def test_multiple_timeline(self):
         tweet_watches = [
             dict(id=5, type='user', account='acc',
