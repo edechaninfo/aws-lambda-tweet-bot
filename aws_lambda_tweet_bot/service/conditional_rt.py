@@ -80,6 +80,17 @@ def bot_handler(env, conf):
                     if hasattr(status, 'extended_entities'):
                         matches = True
                 if matches:
+                    # Even if condition matches, tweets are filtered by
+                    # blacklist keywords
+                    for blk_word in condition.get('blacklist_keywords', []):
+                        if blk_word in status.text:
+                            matches = False
+                            msg = ("Keyword '%s' is blacklist so following "
+                                   "tweet is not retweeted:\n%s")
+                            logger.info(msg % (blk_word,
+                                               status.text.encode('utf_8')))
+                            break
+                if matches:
                     try:
                         tapi.retweet(status.id)
                         logger.info("Retweeted successfully: \n" +
