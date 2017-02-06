@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from collections import defaultdict
+import copy
 import logging
 import sys
 
@@ -70,12 +71,12 @@ class FakeLogger(logging.Logger, object):
 
 class FakeDynamodbTable(object):
     def __init__(self, items):
-        self.items = items
+        self.items = copy.deepcopy(items)
         self._map = dict()
         self._put_item_count = 0
         for item in items:
             # 'id' is always regarded as ID of record
-            self._map[item['id']] = item
+            self._map[item['id']] = copy.deepcopy(item)
         self._put_items = list()
 
     def scan(self):
@@ -107,15 +108,16 @@ class FakeStatus(object):
 
 
 class FakeTweepyApi(object):
-    def __init__(self, statuses={}):
+    def __init__(self, statuses={}, update_error=False):
         self._retweet_ids = list()
         self._retweet_error_count = 0
         self._update_statuses = list()
         self._update_status_error_count = 0
         self._set_statuses(statuses)
+        self._update_error = update_error
 
     def _set_statuses(self, statuses):
-        self._statuses = statuses
+        self._statuses = copy.deepcopy(statuses)
 
     def __get_timeline(self, tl):
         if isinstance(tl, TweepError):
@@ -141,6 +143,8 @@ class FakeTweepyApi(object):
         self._retweet_ids.append(status_id)
 
     def update_status(self, body):
+        if self._update_error:
+            raise TweepError('Internal error')
         if body in self._update_statuses:
             self._update_status_error_count += 1
             raise TweepError('Status is a duplicate.')
