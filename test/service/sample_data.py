@@ -71,6 +71,7 @@ sample_blog_data = {
     'bozo_exception': {
         'message': 'document declared as us-ascii, but parsed as utf-8'
     },
+    'version': 'rss10',
     'encoding': 'utf-8',
     'entries': [
         obj(id='http://ameblo.jp/fruits-box-blog/entry-12211554968.html',
@@ -89,6 +90,7 @@ sample_blog_data2 = {
     'bozo_exception': {
         'message': 'document declared as us-ascii, but parsed as utf-8'
     },
+    'version': 'rss10',
     'encoding': 'utf-8',
     'entries': [
         obj(id='http://ameblo.jp/otakublo/entry-12311554968.html',
@@ -107,16 +109,14 @@ sample_blog_data3 = {
     'bozo_exception': {
         'message': 'document declared as us-ascii, but parsed as utf-8'
     },
+    'version': 'rss20',
     'encoding': 'utf-8',
     'entries': [
-        obj(id='http://ameblo.jp/ari-step/entry-12233144905.html',
-            title='In these days...',
+        obj(title='In these days...',
             link='http://ameblo.jp/ari-step/entry-12233144905.html'),
-        obj(id='http://ameblo.jp/ari-step/entry-12226218315.html',
-            title='Look this',
+        obj(title='Look this',
             link='http://ameblo.jp/ari-step/entry-12226218315.html'),
-        obj(id='http://ameblo.jp/ari-step/entry-12224195011.html',
-            title='4DX!!',
+        obj(title='4DX!!',
             link='http://ameblo.jp/ari-step/entry-12224195011.html')
     ]
 }

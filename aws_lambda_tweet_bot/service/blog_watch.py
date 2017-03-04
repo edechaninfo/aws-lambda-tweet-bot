@@ -110,6 +110,9 @@ def bot_handler(env, conf):
             if len(news_dic['entries']) <= 0:
                 raise Exception("No entries. Please check feed url setting.")
             for entry in news_dic['entries']:
+                # Hack rss10/rss20 difference for Ameblo
+                if not entry.get('id'):
+                    setattr(entry, 'id', entry.link)
                 if _match_search_condition(blog_item, entry, latest_id):
                     if not blog_item.get('body_format'):
                         raise KeyError("body_format must be defined")

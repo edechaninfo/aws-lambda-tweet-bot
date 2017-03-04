@@ -419,17 +419,15 @@ class TestBlogWatch(unittest.TestCase):
                 'message': 'document declared as us-ascii, but parsed as utf-8'
             },
             'encoding': 'utf-8',
+            'version': 'rss20',
             'entries': [
-                obj(id='http://ameblo.jp/ogurayui-0815/entry-12187666106.html',
-                    title='Supply Water',
+                obj(title='Supply Water',
                     link='http://ameblo.jp/ogurayui-0815/'
                          'entry-12187666106.html'),
-                obj(id='http://ameblo.jp/ogurayui-0815/entry-12186656735.html',
-                    title='Hot and Spicy',
+                obj(title='Hot and Spicy',
                     link='http://ameblo.jp/ogurayui-0815/'
                          'entry-12186656735.html'),
-                obj(id='http://ameblo.jp/ogurayui-0815/entry-12186044375.html',
-                    title='Summer Vacation',
+                obj(title='Summer Vacation',
                     link='http://ameblo.jp/ogurayui-0815/'
                          'entry-12186044375.html')
             ]
@@ -439,20 +437,15 @@ class TestBlogWatch(unittest.TestCase):
                 'message': 'document declared as us-ascii, but parsed as utf-8'
             },
             'encoding': 'utf-8',
+            'version': 'rss20',
             'entries': [
-                obj(id='http://ameblo.jp/ishiharakaori-0806/'
-                        'entry-12225358373.html',
-                    title='Pop in Q',
+                obj(title='Pop in Q',
                     link='http://ameblo.jp/ishiharakaori-0806/'
                          'entry-12225358373.html'),
-                obj(id='http://ameblo.jp/ishiharakaori-0806/'
-                    'entry-12224315509.html',
-                    title='Cocon Poi Poi Cocotama',
+                obj(title='Cocon Poi Poi Cocotama',
                     link='http://ameblo.jp/ishiharakaori-0806/'
                          'entry-12224315509.html'),
-                obj(id='http://ameblo.jp/ishiharakaori-0806/'
-                    'entry-12223186447.html',
-                    title='Event',
+                obj(title='Event',
                     link='http://ameblo.jp/ishiharakaori-0806/'
                          'entry-12223186447.html')
             ]
@@ -462,17 +455,15 @@ class TestBlogWatch(unittest.TestCase):
                 'message': 'document declared as us-ascii, but parsed as utf-8'
             },
             'encoding': 'utf-8',
+            'version': 'rss20',
             'entries': [
-                obj(id='http://ameblo.jp/tanoue-marina/entry-12232581672.html',
-                    title='Birthday',
+                obj(title='Birthday',
                     link='http://ameblo.jp/tanoue-marina/'
                          'entry-12232581672.html'),
-                obj(id='http://ameblo.jp/tanoue-marina/entry-12232298510.html',
-                    title='VR',
+                obj(title='VR',
                     link='http://ameblo.jp/tanoue-marina/'
                          'entry-12232298510.html'),
-                obj(id='http://ameblo.jp/tanoue-marina/entry-12231980149.html',
-                    title='Greeting 2',
+                obj(title='Greeting 2',
                     link='http://ameblo.jp/tanoue-marina/'
                          'entry-12231980149.html')
             ]
@@ -482,15 +473,13 @@ class TestBlogWatch(unittest.TestCase):
                 'message': 'document declared as us-ascii, but parsed as utf-8'
             },
             'encoding': 'utf-8',
+            'version': 'rss20',
             'entries': [
-                obj(id='http://ameblo.jp/ari-step/entry-12233144905.html',
-                    title='In these days...',
+                obj(title='In these days...',
                     link='http://ameblo.jp/ari-step/entry-12233144905.html'),
-                obj(id='http://ameblo.jp/ari-step/entry-12226218315.html',
-                    title='Look this',
+                obj(title='Look this',
                     link='http://ameblo.jp/ari-step/entry-12226218315.html'),
-                obj(id='http://ameblo.jp/ari-step/entry-12224195011.html',
-                    title='4DX!!',
+                obj(title='4DX!!',
                     link='http://ameblo.jp/ari-step/entry-12224195011.html')
             ]
         }
