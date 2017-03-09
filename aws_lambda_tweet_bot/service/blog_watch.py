@@ -14,6 +14,7 @@
 
 from HTMLParser import HTMLParser
 import logging
+import time
 
 import feedparser
 import requests
@@ -79,10 +80,10 @@ def _blog_body(link):
         return ""
 
 
-def _match_search_condition(db_item, feed_entry, latest_id):
+def _match_search_condition(db_item, feed_entry, latest_date):
     match = False
     # Check if this entry should be searched
-    if latest_id is None or latest_id < feed_entry.id:
+    if latest_date < time.mktime(feed_entry.published_parsed):
         title_search_condition = db_item.get('search_condition', None)
         if title_search_condition is not None:
             # title match
@@ -101,19 +102,22 @@ def bot_handler(env, conf):
     logger.info('service "{}" started!"'.format(SERVICE_ID))
     blog_table = get_dynamodb_table('blog_watch', conf)
     blog_data = blog_table.scan()
+    indexes = env.get('pubdate_indexes', {})
+    del_keys = indexes.keys()  # check if item in blog_table is deleted
     for blog_item in blog_data['Items']:
+        # blog_item is available so remove id from delete list
+        if blog_item['id'] in del_keys:
+            del_keys.remove(blog_item['id'])
         try:
             feed_url = blog_item.get('feed', "")
-            latest_id = blog_item.get('latest_id', None)
+            latest_date = indexes.get(blog_item['id'], time.time())
             tw_fail = False
             news_dic = feedparser.parse(feed_url)
             if len(news_dic['entries']) <= 0:
                 raise Exception("No entries. Please check feed url setting.")
+            index_date = latest_date
             for entry in news_dic['entries']:
-                # Hack rss10/rss20 difference for Ameblo
-                if not entry.get('id'):
-                    setattr(entry, 'id', entry.link)
-                if _match_search_condition(blog_item, entry, latest_id):
+                if _match_search_condition(blog_item, entry, latest_date):
                     if not blog_item.get('body_format'):
                         raise KeyError("body_format must be defined")
 
@@ -136,11 +140,10 @@ def bot_handler(env, conf):
                         if 'Status is a duplicate.' not in e.reason:
                             tw_fail = True
                             logger.error(str(e))
-                if (blog_item.get('latest_id') is None or
-                        blog_item['latest_id'] < entry.id):
-                    blog_item['latest_id'] = entry.id
+                if index_date < time.mktime(entry.published_parsed):
+                    index_date = time.mktime(entry.published_parsed)
             if not tw_fail:
-                blog_table.put_item(Item=blog_item)
+                indexes[blog_item['id']] = index_date
             else:
                 logger.info("Tweet is failed. Retry next attempt.")
         except Exception as e:
@@ -148,4 +151,8 @@ def bot_handler(env, conf):
                      "Please check DB record (id: {}): Msg -> {}"
             logger.error(errmsg.format(SERVICE_ID, blog_item.get('id'),
                                        str(e)))
-    return None  # no need to update env
+    # delete unavailable article in blog_table
+    for k in del_keys:
+        del indexes[k]
+    env['pubdate_indexes'] = indexes  # update anytime
+    return True
