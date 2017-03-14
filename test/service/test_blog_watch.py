@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from mock import patch
+import time
 import unittest
 
 from requests.exceptions import ConnectionError
@@ -67,6 +68,9 @@ class TestBlogWatch(unittest.TestCase):
         self.config = Config()
         self.logger = FakeLogger()
 
+    def _mktime(self, strtime):
+        return time.mktime(time.strptime(strtime, '%Y/%m/%d %H:%M:%S'))
+
     def _bot_handler(self, env, conf, mock_tweepy, mock_dynamodb, mock_feed):
         def _fake_feedparse(url):
             return mock_feed.parse(url)
@@ -90,14 +94,14 @@ class TestBlogWatch(unittest.TestCase):
         tw = FakeTweepyApi()
         dynamo = FakeDynamodbTable([feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/08/28 15:21:59')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
         self.assertEqual(2, len(tw._update_statuses))
-        item = dynamo.get_item(feed_item["id"])
-        self.assertEqual(
-            "http://ameblo.jp/fruits-box-blog/entry-12211554968.html",
-            item['latest_id'])
+        self.assertEqual(self._mktime('2016/09/12 23:59:59'),
+                         env['pubdate_indexes']['feed'])
 
         result_status_1 = "[New Update] Ede: Yoru-night! -> " + \
             "http://ameblo.jp/fruits-box-blog/entry-12210698546.html " + \
@@ -107,6 +111,27 @@ class TestBlogWatch(unittest.TestCase):
             "#Ede-chan"
         self.assertIn(result_status_1, tw._update_statuses)
         self.assertIn(result_status_2, tw._update_statuses)
+
+    def test_blog_watch_unavailable_feed_index_deleted(self):
+        feed_item = dict(
+            id="feed",
+            feed="http://existsite.io/feed",
+            search_condition="Ede:",
+            body_format="[New Update] {title} -> {link} #Ede-chan"
+        )
+        tw = FakeTweepyApi()
+        dynamo = FakeDynamodbTable([feed_item])
+        feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/08/28 15:21:59'),
+                   'unavail': self._mktime('2016/12/28 15:21:59')}}
+
+        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self.assertEqual(2, len(tw._update_statuses))
+        self.assertEqual(self._mktime('2016/09/12 23:59:59'),
+                         env['pubdate_indexes']['feed'])
+        self.assertNotIn('unavail', env['pubdate_indexes'])
 
     def test_multiple_blog_watch(self):
         feed_item_1 = dict(
@@ -129,20 +154,19 @@ class TestBlogWatch(unittest.TestCase):
         feed = FakeFeedparser({
             "http://existsite.io/feed": sample_blog_data,
             "http://otherexistsite.io/feed": sample_blog_data2})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/08/28 15:21:59'),
+                   'feed_other': self._mktime('2016/12/31 20:14:14')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
         self.assertEqual(3, len(tw._update_statuses))
         # For blog 1
-        item = dynamo.get_item(feed_item_1["id"])
-        self.assertEqual(
-            "http://ameblo.jp/fruits-box-blog/entry-12211554968.html",
-            item['latest_id'])
+        self.assertEqual(self._mktime('2016/09/12 23:59:59'),
+                         env['pubdate_indexes']['feed'])
         # For blog 2
-        item = dynamo.get_item(feed_item_2["id"])
-        self.assertEqual(
-            "http://ameblo.jp/otakublo/entry-12311554968.html",
-            item['latest_id'])
+        self.assertEqual(self._mktime('2017/01/21 23:14:14'),
+                         env['pubdate_indexes']['feed_other'])
 
         result_status_1 = "[New Update] Ede: Yoru-night! -> " + \
             "http://ameblo.jp/fruits-box-blog/entry-12210698546.html " + \
@@ -177,9 +201,18 @@ class TestBlogWatch(unittest.TestCase):
         feed = FakeFeedparser({
             "http://existsite.io/feed": {},  # Feed result is unexpected
             "http://otherexistsite.io/feed": sample_blog_data2})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/08/28 15:21:59'),
+                   'feed_other': self._mktime('2016/12/31 20:14:14')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
+        # unchange blog 1
+        self.assertEqual(self._mktime('2016/08/28 15:21:59'),
+                         env['pubdate_indexes']['feed'])
+        # for blog 2
+        self.assertEqual(self._mktime('2017/01/21 23:14:14'),
+                         env['pubdate_indexes']['feed_other'])
         self.assertEqual(1, len(tw._update_statuses))
         self.assertIn('Unexpected error on service blog-watch: '
                       'Please check DB record (id: feed)',
@@ -197,14 +230,14 @@ class TestBlogWatch(unittest.TestCase):
         tw = FakeTweepyApi()
         dynamo = FakeDynamodbTable([feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/08/28 15:21:59')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
         self.assertEqual(0, len(tw._update_statuses))
-        item = dynamo.get_item(feed_item["id"])
-        self.assertEqual(
-            "http://ameblo.jp/fruits-box-blog/entry-12211554968.html",
-            item['latest_id'])
+        self.assertEqual(self._mktime('2016/09/12 23:59:59'),
+                         env['pubdate_indexes']['feed'])
 
     def test_empty_body_format(self):
         feed_item = dict(
@@ -217,7 +250,9 @@ class TestBlogWatch(unittest.TestCase):
         tw = FakeTweepyApi()
         dynamo = FakeDynamodbTable([feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/08/28 15:21:59')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
         self.assertEqual(0, len(tw._update_statuses))
@@ -225,6 +260,9 @@ class TestBlogWatch(unittest.TestCase):
                          "Please check DB record (id: feed)"
                          ": Msg -> 'body_format must be defined'",
                          self.logger.lines_dict['error'][0])
+        # unchange blog 1
+        self.assertEqual(self._mktime('2016/08/28 15:21:59'),
+                         env['pubdate_indexes']['feed'])
 
     def test_invalid_body_format(self):
         feed_item = dict(
@@ -238,14 +276,19 @@ class TestBlogWatch(unittest.TestCase):
         tw = FakeTweepyApi()
         dynamo = FakeDynamodbTable([feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/08/28 15:21:59')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
         self.assertEqual(0, len(tw._update_statuses))
         self.assertIn('{titl} is not available in blog entry.',
                       self.logger.lines_dict['error'][0])
+        # unchange blog 1
+        self.assertEqual(self._mktime('2016/08/28 15:21:59'),
+                         env['pubdate_indexes']['feed'])
 
-    def test_empty_latest_id(self):
+    def test_empty_pubdate_indexes(self):
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
@@ -257,12 +300,11 @@ class TestBlogWatch(unittest.TestCase):
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test'}
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
-        self.assertEqual(2, len(tw._update_statuses))
-        item = dynamo.get_item(feed_item["id"])
-        self.assertEqual(
-            "http://ameblo.jp/fruits-box-blog/entry-12211554968.html",
-            item['latest_id'])
+        with patch('time.time', return_value=1500000000.3):
+            self._bot_handler(env, self.config, tw, dynamo, feed)
+        self.assertEqual(0, len(tw._update_statuses))
+        # No tweet, but pubdate_indexes is added as current time
+        self.assertEqual(1500000000.3, env['pubdate_indexes']['feed'])
 
     def test_no_new_blog_update(self):
         feed_item = dict(
@@ -275,15 +317,15 @@ class TestBlogWatch(unittest.TestCase):
         tw = FakeTweepyApi()
         dynamo = FakeDynamodbTable([feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/09/11 23:59:59')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
         self.assertEqual(0, len(tw._update_statuses))
-        # No update, but id is moved to latest id
-        item = dynamo.get_item(feed_item["id"])
-        self.assertEqual(
-            "http://ameblo.jp/fruits-box-blog/entry-12211554968.html",
-            item['latest_id'])
+        # No update, but index is moved to latest pubdate
+        self.assertEqual(self._mktime('2016/09/12 23:59:59'),
+                         env['pubdate_indexes']['feed'])
 
     def test_update_fail_no_index_change(self):
         feed_item = dict(
@@ -297,15 +339,15 @@ class TestBlogWatch(unittest.TestCase):
         tw = FakeTweepyApi(update_error=True)
         dynamo = FakeDynamodbTable([feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/08/28 21:21:59')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
         self.assertEqual(0, len(tw._update_statuses))
-        # Tweet error, so latest id is not moved
-        item = dynamo.get_item(feed_item["id"])
-        self.assertEqual(
-            "http://ameblo.jp/fruits-box-blog/entry-12208663602.html",
-            item['latest_id'])
+        # Tweet error, so index is not moved
+        self.assertEqual(self._mktime('2016/08/28 21:21:59'),
+                         env['pubdate_indexes']['feed'])
 
     def test_empty_blogs(self):
         tw = FakeTweepyApi()
@@ -344,19 +386,19 @@ class TestBlogWatch(unittest.TestCase):
         tw = FakeTweepyApi()
         dynamo = FakeDynamodbTable([feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/08/28 15:21:59')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
-        item = dynamo.get_item(feed_item["id"])
-        self.assertEqual(
-            "http://ameblo.jp/fruits-box-blog/entry-12211554968.html",
-            item['latest_id'])
+        self.assertEqual(self._mktime('2016/09/12 23:59:59'),
+                         env['pubdate_indexes']['feed'])
 
         # def fake function for _match_search_condition
-        def _fake_msc(db_item, feed_entry, latest_id):
+        def _fake_msc(db_item, feed_entry, latest_date):
             match = False
             # Check if this entry should be searched
-            if latest_id is None or latest_id < feed_entry.id:
+            if latest_date < time.mktime(feed_entry.published_parsed):
                 raise Exception("2nd try has come")
             return match
         # blog_watch._match_search_condition = _fake_match_search_condition
@@ -379,7 +421,9 @@ class TestBlogWatch(unittest.TestCase):
         req = FakeRequests(
             {'http://ameblo.jp/ari-step/entry-12226218315.html':
              sample_ameblo_blog_body})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/07/21 13:14:14')}}
 
         with patch(PATH_BLOG_WATCH + '.requests', req):
             self._bot_handler(env, self.config, tw, dynamo, feed)
@@ -388,6 +432,8 @@ class TestBlogWatch(unittest.TestCase):
             "#Ari-chan #Ede-chan"
         self.assertEqual(1, len(tw._update_statuses))
         self.assertIn(result_status, tw._update_statuses)
+        self.assertEqual(self._mktime('2016/08/21 23:14:14'),
+                         env['pubdate_indexes']['feed'])
 
     def test_blog_body_search_mock_no_match(self):
         # '4DX' word is found in link list but this should not be tweeted
@@ -405,11 +451,15 @@ class TestBlogWatch(unittest.TestCase):
         req = FakeRequests(
             {'http://ameblo.jp/ari-step/entry-12226218315.html':
              sample_ameblo_blog_body})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'feed': self._mktime('2016/07/21 13:14:14')}}
 
         with patch(PATH_BLOG_WATCH + '.requests', req):
             self._bot_handler(env, self.config, tw, dynamo, feed)
         self.assertEqual(0, len(tw._update_statuses))
+        self.assertEqual(self._mktime('2016/08/21 23:14:14'),
+                         env['pubdate_indexes']['feed'])
 
     def test_blog_body_search_online(self):
         # Check if Ameblo spec is not changed
@@ -421,13 +471,19 @@ class TestBlogWatch(unittest.TestCase):
             'encoding': 'utf-8',
             'version': 'rss20',
             'entries': [
-                obj(title='Supply Water',
+                obj(published_parsed=time.strptime('2016/08/21 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='Supply Water',
                     link='http://ameblo.jp/ogurayui-0815/'
                          'entry-12187666106.html'),
-                obj(title='Hot and Spicy',
+                obj(published_parsed=time.strptime('2016/08/01 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='Hot and Spicy',
                     link='http://ameblo.jp/ogurayui-0815/'
                          'entry-12186656735.html'),
-                obj(title='Summer Vacation',
+                obj(published_parsed=time.strptime('2016/07/21 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='Summer Vacation',
                     link='http://ameblo.jp/ogurayui-0815/'
                          'entry-12186044375.html')
             ]
@@ -439,13 +495,19 @@ class TestBlogWatch(unittest.TestCase):
             'encoding': 'utf-8',
             'version': 'rss20',
             'entries': [
-                obj(title='Pop in Q',
+                obj(published_parsed=time.strptime('2016/08/21 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='Pop in Q',
                     link='http://ameblo.jp/ishiharakaori-0806/'
                          'entry-12225358373.html'),
-                obj(title='Cocon Poi Poi Cocotama',
+                obj(published_parsed=time.strptime('2016/08/01 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='Cocon Poi Poi Cocotama',
                     link='http://ameblo.jp/ishiharakaori-0806/'
                          'entry-12224315509.html'),
-                obj(title='Event',
+                obj(published_parsed=time.strptime('2016/07/21 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='Event',
                     link='http://ameblo.jp/ishiharakaori-0806/'
                          'entry-12223186447.html')
             ]
@@ -457,13 +519,19 @@ class TestBlogWatch(unittest.TestCase):
             'encoding': 'utf-8',
             'version': 'rss20',
             'entries': [
-                obj(title='Birthday',
+                obj(published_parsed=time.strptime('2016/08/21 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='Birthday',
                     link='http://ameblo.jp/tanoue-marina/'
                          'entry-12232581672.html'),
-                obj(title='VR',
+                obj(published_parsed=time.strptime('2016/08/01 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='VR',
                     link='http://ameblo.jp/tanoue-marina/'
                          'entry-12232298510.html'),
-                obj(title='Greeting 2',
+                obj(published_parsed=time.strptime('2016/07/21 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='Greeting 2',
                     link='http://ameblo.jp/tanoue-marina/'
                          'entry-12231980149.html')
             ]
@@ -475,11 +543,17 @@ class TestBlogWatch(unittest.TestCase):
             'encoding': 'utf-8',
             'version': 'rss20',
             'entries': [
-                obj(title='In these days...',
+                obj(published_parsed=time.strptime('2016/08/21 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='In these days...',
                     link='http://ameblo.jp/ari-step/entry-12233144905.html'),
-                obj(title='Look this',
+                obj(published_parsed=time.strptime('2016/08/01 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='Look this',
                     link='http://ameblo.jp/ari-step/entry-12226218315.html'),
-                obj(title='4DX!!',
+                obj(published_parsed=time.strptime('2016/07/21 23:14:14',
+                                                   '%Y/%m/%d %H:%M:%S'),
+                    title='4DX!!',
                     link='http://ameblo.jp/ari-step/entry-12224195011.html')
             ]
         }
@@ -512,7 +586,7 @@ class TestBlogWatch(unittest.TestCase):
             # hondo in Kanji
         )
         arichan_feed_item = dict(
-            id="tanoway",
+            id="arichan",
             feed="http://existsite.io/arichan",
             latest_id="http://ameblo.jp/ari-step/entry-12223871525.html",
             body_format="[New Update] {title} -> {link} #Ari-chan #Ede-chan",
@@ -528,7 +602,12 @@ class TestBlogWatch(unittest.TestCase):
              "http://existsite.io/kyarisan": kyarisan_blog_data,
              "http://existsite.io/tanoway": tanoway_blog_data,
              "http://existsite.io/arichan": arichan_blog_data})
-        env = {'twitter_env': 'test'}
+        env = {'twitter_env': 'test',
+               'pubdate_indexes': {
+                   'ogusan': self._mktime('2016/06/28 15:21:59'),
+                   'kyarisan': self._mktime('2016/06/28 15:21:59'),
+                   'tanoway': self._mktime('2016/06/28 15:21:59'),
+                   'arichan': self._mktime('2016/06/28 15:21:59')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
         self.assertEqual(5, len(tw._update_statuses))

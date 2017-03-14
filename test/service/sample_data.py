@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
+
 from test.utils import obj
 
 
@@ -71,16 +73,19 @@ sample_blog_data = {
     'bozo_exception': {
         'message': 'document declared as us-ascii, but parsed as utf-8'
     },
-    'version': 'rss10',
+    'version': 'rss20',
     'encoding': 'utf-8',
     'entries': [
-        obj(id='http://ameblo.jp/fruits-box-blog/entry-12211554968.html',
+        obj(published_parsed=time.strptime('2016/09/12 23:59:59',
+                                           '%Y/%m/%d %H:%M:%S'),
             title='Minyami: Wake up, girls',
             link='http://ameblo.jp/fruits-box-blog/entry-12211554968.html'),
-        obj(id='http://ameblo.jp/fruits-box-blog/entry-12210698546.html',
+        obj(published_parsed=time.strptime('2016/09/10 17:21:59',
+                                           '%Y/%m/%d %H:%M:%S'),
             title='Ede: Yoru-night!',
             link='http://ameblo.jp/fruits-box-blog/entry-12210698546.html'),
-        obj(id='http://ameblo.jp/fruits-box-blog/entry-12208663602.html',
+        obj(published_parsed=time.strptime('2016/08/28 21:21:59',
+                                           '%Y/%m/%d %H:%M:%S'),
             title='Ede: Pop in Q',
             link='http://ameblo.jp/fruits-box-blog/entry-12208663602.html')
     ]
@@ -90,16 +95,19 @@ sample_blog_data2 = {
     'bozo_exception': {
         'message': 'document declared as us-ascii, but parsed as utf-8'
     },
-    'version': 'rss10',
+    'version': 'rss20',
     'encoding': 'utf-8',
     'entries': [
-        obj(id='http://ameblo.jp/otakublo/entry-12311554968.html',
+        obj(published_parsed=time.strptime('2017/01/21 23:14:14',
+                                           '%Y/%m/%d %H:%M:%S'),
             title='Hondo-san has come as our guest',
             link='http://ameblo.jp/otakublo/entry-12311554968.html'),
-        obj(id='http://ameblo.jp/otakublo/entry-12290698546.html',
+        obj(published_parsed=time.strptime('2016/12/31 20:14:14',
+                                           '%Y/%m/%d %H:%M:%S'),
             title="We will invite secret guest for today's program'",
             link='http://ameblo.jp/otakublo/entry-12290698546.html'),
-        obj(id='http://ameblo.jp/otakublo/entry-12258663602.html',
+        obj(published_parsed=time.strptime('2016/12/05 05:14:14',
+                                           '%Y/%m/%d %H:%M:%S'),
             title='Next program will feature girlish number',
             link='http://ameblo.jp/otakublo/entry-12258663602.html')
     ]
@@ -112,11 +120,17 @@ sample_blog_data3 = {
     'version': 'rss20',
     'encoding': 'utf-8',
     'entries': [
-        obj(title='In these days...',
+        obj(published_parsed=time.strptime('2016/08/21 23:14:14',
+                                           '%Y/%m/%d %H:%M:%S'),
+            title='In these days...',
             link='http://ameblo.jp/ari-step/entry-12233144905.html'),
-        obj(title='Look this',
+        obj(published_parsed=time.strptime('2016/08/01 23:14:14',
+                                           '%Y/%m/%d %H:%M:%S'),
+            title='Look this',
             link='http://ameblo.jp/ari-step/entry-12226218315.html'),
-        obj(title='4DX!!',
+        obj(published_parsed=time.strptime('2016/07/21 23:14:14',
+                                           '%Y/%m/%d %H:%M:%S'),
+            title='4DX!!',
             link='http://ameblo.jp/ari-step/entry-12224195011.html')
     ]
 }
