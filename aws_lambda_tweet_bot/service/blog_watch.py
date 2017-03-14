@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from decimal import Decimal
 from HTMLParser import HTMLParser
 import logging
 import time
@@ -110,7 +111,7 @@ def bot_handler(env, conf):
             del_keys.remove(blog_item['id'])
         try:
             feed_url = blog_item.get('feed', "")
-            latest_date = indexes.get(blog_item['id'], time.time())
+            latest_date = Decimal(indexes.get(blog_item['id'], time.time()))
             tw_fail = False
             news_dic = feedparser.parse(feed_url)
             if len(news_dic['entries']) <= 0:
