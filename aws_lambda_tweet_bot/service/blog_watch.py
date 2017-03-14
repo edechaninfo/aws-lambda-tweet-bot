@@ -142,7 +142,7 @@ def bot_handler(env, conf):
                             tw_fail = True
                             logger.error(str(e))
                 if index_date < time.mktime(entry.published_parsed):
-                    index_date = time.mktime(entry.published_parsed)
+                    index_date = Decimal(time.mktime(entry.published_parsed))
             if not tw_fail:
                 indexes[blog_item['id']] = index_date
             else:
