@@ -19,6 +19,8 @@ import sys
 
 from tweepy import TweepError
 
+from test.utils import validate_data_for_dynamo_db
+
 
 class FakeLogger(logging.Logger, object):
     store_in = {
@@ -75,6 +77,7 @@ class FakeDynamodbTable(object):
         self._map = dict()
         self._put_item_count = 0
         for item in items:
+            validate_data_for_dynamo_db(item)
             # 'id' is always regarded as ID of record
             self._map[item['id']] = copy.deepcopy(item)
         self._put_items = list()
@@ -82,8 +85,9 @@ class FakeDynamodbTable(object):
     def scan(self):
         return {"Items": self.items}
 
-    def put_item(self, Item):
-        self._map[Item['id']] = Item
+    def put_item(self, item):
+        validate_data_for_dynamo_db(item)
+        self._map[item['id']] = item
         self._put_item_count += 1
 
     def get_item(self, key):

@@ -22,6 +22,7 @@ from config import Config
 from test import FakeDynamodbTable, FakeTweepyApi, FakeLogger
 from test.service.sample_data import sample_user_statuses, \
     sample_list_statuses
+from test.utils import validate_data_for_dynamo_db
 
 
 D_TARGET = "aws_lambda_tweet_bot.service.conditional_rt.get_dynamodb_table"
@@ -34,10 +35,15 @@ class TestConditionalRT(unittest.TestCase):
         self.logger = FakeLogger()
 
     def _bot_handler(self, env, conf, mock_tweepy, mock_dynamodb):
+        # check input env
+        validate_data_for_dynamo_db(env)
+
         with patch(D_TARGET, return_value=mock_dynamodb):
             with patch(T_TARGET, return_value=mock_tweepy):
                 conditional_rt.logger = self.logger
                 ret = conditional_rt.bot_handler(env, conf)
+        # check output env
+        validate_data_for_dynamo_db(env)
         return ret
 
     def test_user_timeline(self):
