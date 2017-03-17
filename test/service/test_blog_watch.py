@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from decimal import Decimal
 from mock import patch
 import time
 import unittest
@@ -23,7 +24,7 @@ from aws_lambda_tweet_bot.service import blog_watch
 from test import FakeDynamodbTable, FakeTweepyApi, FakeLogger
 from test.service.sample_data import sample_blog_data, sample_blog_data2, \
     sample_blog_data3, sample_ameblo_blog_body
-from test.utils import obj
+from test.utils import obj, validate_data_for_dynamo_db
 
 
 PATH_BLOG_WATCH = "aws_lambda_tweet_bot.service.blog_watch"
@@ -69,9 +70,13 @@ class TestBlogWatch(unittest.TestCase):
         self.logger = FakeLogger()
 
     def _mktime(self, strtime):
-        return time.mktime(time.strptime(strtime, '%Y/%m/%d %H:%M:%S'))
+        return Decimal(
+            time.mktime(time.strptime(strtime, '%Y/%m/%d %H:%M:%S')))
 
     def _bot_handler(self, env, conf, mock_tweepy, mock_dynamodb, mock_feed):
+        # check input env
+        validate_data_for_dynamo_db(env)
+
         def _fake_feedparse(url):
             return mock_feed.parse(url)
 
@@ -80,6 +85,8 @@ class TestBlogWatch(unittest.TestCase):
                 with patch('feedparser.parse', _fake_feedparse):
                     blog_watch.logger = self.logger
                     ret = blog_watch.bot_handler(env, conf)
+        # check output env
+        validate_data_for_dynamo_db(env)
         return ret
 
     def test_blog_watch(self):

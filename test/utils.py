@@ -20,3 +20,24 @@ class obj(dict):
 
     def __getattr__(self, attr):
         return self.d[attr]
+
+
+E_MSG_FLOAT = 'Float types are not supported. Use Decimal types instead.'
+
+
+def validate_data_for_dynamo_db(data):
+    # data should be dict type
+    for k, v in data.items():
+        if isinstance(v, dict):
+            validate_data_for_dynamo_db(v)
+        elif isinstance(v, list):
+            for val in v:
+                if isinstance(val, float):
+                    raise TypeError(E_MSG_FLOAT)
+        elif isinstance(v, tuple):
+            for val in v:
+                if isinstance(val, float):
+                    raise TypeError(E_MSG_FLOAT)
+        else:
+            if isinstance(v, float):
+                raise TypeError(E_MSG_FLOAT)
