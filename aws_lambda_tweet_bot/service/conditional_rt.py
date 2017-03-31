@@ -79,6 +79,9 @@ def bot_handler(env, conf):
                 if condition.get('photo'):
                     if hasattr(status, 'extended_entities'):
                         matches = True
+                # reply tweet must not be retweeted
+                if status.text.startswith('@'):
+                    matches = False
                 if matches:
                     # Even if condition matches, tweets are filtered by
                     # blacklist keywords
