@@ -85,17 +85,26 @@ def _match_search_condition(db_item, feed_entry, latest_date):
     match = False
     # Check if this entry should be searched
     if latest_date < time.mktime(feed_entry.published_parsed):
-        title_search_condition = db_item.get('search_condition', None)
-        if title_search_condition is not None:
-            # title match
-            match = title_search_condition in feed_entry.title
-        if not match and db_item.get('body_search', False):
-            # blog body match
-            body = _blog_body(feed_entry.link)
-            for cond in db_item.get('body_search_conditions', []):
-                if cond in body:
-                    match = True
-                    break
+        # Remove PR RSS Article
+        if not feed_entry.title.startswith('PR:'):
+            title_search_condition = db_item.get('search_condition', None)
+            body_search = db_item.get('body_search', False)
+
+            if title_search_condition is None and not body_search:
+                # no condition passes all articles
+                match = True
+
+            if title_search_condition is not None:
+                # title match
+                match = title_search_condition in feed_entry.title
+
+            if not match and body_search:
+                # blog body match
+                body = _blog_body(feed_entry.link)
+                for cond in db_item.get('body_search_conditions', []):
+                    if cond in body:
+                        match = True
+                        break
     return match
 
 

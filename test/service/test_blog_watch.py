@@ -226,12 +226,10 @@ class TestBlogWatch(unittest.TestCase):
                       self.logger.lines_dict['error'][0])
 
     def test_empty_search_condition(self):
-        # Empty search_condition is regarded as all conditions are rejected
+        # Empty search_condition is regarded as all posts are passed
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/fruits-box-blog/"
-                      "entry-12208663600.html",
             body_format="[New Update] {title} -> {link}"
         )
         tw = FakeTweepyApi()
@@ -242,7 +240,7 @@ class TestBlogWatch(unittest.TestCase):
                    'feed': self._mktime('2016/08/28 15:21:59')}}
 
         self._bot_handler(env, self.config, tw, dynamo, feed)
-        self.assertEqual(0, len(tw._update_statuses))
+        self.assertEqual(3, len(tw._update_statuses))
         self.assertEqual(self._mktime('2016/09/12 23:59:59'),
                          env['pubdate_indexes']['feed'])
 
@@ -319,7 +317,8 @@ class TestBlogWatch(unittest.TestCase):
             feed="http://existsite.io/feed",
             latest_id="http://ameblo.jp/fruits-box-blog/"
                       "entry-12211554966.html",
-            body_format="[New Update] {title} -> {link}"
+            body_format="[New Update] {title} -> {link}",
+            search_condition="Ede:"
         )
         tw = FakeTweepyApi()
         dynamo = FakeDynamodbTable([feed_item])
