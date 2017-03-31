@@ -50,6 +50,39 @@ sample_user_statuses = [
     }
 ]
 
+sample_user_statuses_incl_reply = [
+    {
+        "id": 889035945014145025,
+        "text": "Ede-chan is promising voice actor"
+    },
+    {
+        "id": 889029558014135025,
+        "text": "Recording will start soon :)",
+        "extended_entities": {
+            'media': [
+                {
+                    'id': 894502295782232064,
+                    'media_url': 'http://pbs.twimg.com/media/hogehoge.jpg',
+                    'type': 'photo'
+                },
+                {
+                    'id': 894502295782232065,
+                    'media_url': 'http://pbs.twimg.com/media/fugafuga.jpg',
+                    'type': 'photo'
+                }
+            ]
+        }
+    },
+    {
+        "id": 889025958014135025,
+        "text": "@edechaninfo Thank you for listening Ede-chan radio"
+    },
+    {
+        "id": 889025945014135025,
+        "text": "We will invite Ede-chan for ANIME Fes!!"
+    }
+]
+
 sample_list_statuses = [
     {
         "id": 789085945014145025,

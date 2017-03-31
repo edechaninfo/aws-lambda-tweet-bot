@@ -21,7 +21,7 @@ from aws_lambda_tweet_bot.service import conditional_rt
 from config import Config
 from test import FakeDynamodbTable, FakeTweepyApi, FakeLogger
 from test.service.sample_data import sample_user_statuses, \
-    sample_list_statuses
+    sample_list_statuses, sample_user_statuses_incl_reply
 from test.utils import validate_data_for_dynamo_db
 
 
@@ -77,6 +77,21 @@ class TestConditionalRT(unittest.TestCase):
         self.assertIn(789058945014135025, mock_tweepy._retweet_ids)
 
     def test_user_timeline_with_photo(self):
+        tweet_watches = [
+            dict(id=5, type='user', account='acc', match_strings=['Ede-chan'])
+        ]
+        mock_dynamodb = FakeDynamodbTable(tweet_watches)
+        mock_tweepy = FakeTweepyApi(
+            dict(user=dict(acc=sample_user_statuses_incl_reply)))
+        env = dict(twitter_env='test', since_id=809025945014135025)
+
+        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self.assertEqual(2, len(mock_tweepy._retweet_ids))
+        self.assertEqual(889035945014145025, env['since_id'])
+        self.assertIn(889035945014145025, mock_tweepy._retweet_ids)
+        self.assertIn(889025945014135025, mock_tweepy._retweet_ids)
+
+    def test_user_timeline_incl_reply(self):
         tweet_watches = [
             dict(id=5, type='user', account='acc', match_strings=['Ede-chan'],
                  photo=True)
