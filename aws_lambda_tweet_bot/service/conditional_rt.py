@@ -82,6 +82,13 @@ def bot_handler(env, conf):
                 # reply tweet must not be retweeted
                 if status.text.startswith('@'):
                     matches = False
+                # retweet of retweet (default is 'not allowed')
+                if not condition.get('rt_of_rt', False) and \
+                        hasattr(status, 'retweeted_status'):
+                    logger.info("Following tweet is not made by original "
+                                "author so not retweeted:\n%s",
+                                status.text.encode('utf_8'))
+                    matches = False
                 if matches:
                     # Even if condition matches, tweets are filtered by
                     # blacklist keywords
