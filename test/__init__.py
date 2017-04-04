@@ -110,6 +110,10 @@ class FakeStatus(object):
     def extended_entities(self):
         return self.status['extended_entities']
 
+    @property
+    def retweeted_status(self):
+        return FakeStatus(self.status['retweeted_status'])
+
 
 class FakeTweepyApi(object):
     def __init__(self, statuses={}, update_error=False):

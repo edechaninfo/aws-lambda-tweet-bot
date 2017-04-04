@@ -23,6 +23,14 @@ sample_user_statuses = [
         "text": "Ede-chan is promising voice actor"
     },
     {
+        "id": 789031958014135025,
+        "text": "RT @seiyu1: I will take a role of new character.",
+        "retweeted_status": {
+            "id": 769030958014135025,
+            "text": "I will take a role of new character"
+        }
+    },
+    {
         "id": 789029558014135025,
         "text": "Recording will start soon :)",
         "extended_entities": {
@@ -38,6 +46,14 @@ sample_user_statuses = [
                     'type': 'photo'
                 }
             ]
+        }
+    },
+    {
+        "id": 789027958014135025,
+        "text": "RT @animeseiyu: Ede-chan will be on the stage!",
+        "retweeted_status": {
+            "id": 769027958014135025,
+            "text": "Ede-chan will be on the stage!"
         }
     },
     {
