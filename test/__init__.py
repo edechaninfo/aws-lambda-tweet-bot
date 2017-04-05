@@ -95,8 +95,9 @@ class FakeDynamodbTable(object):
 
 
 class FakeStatus(object):
-    def __init__(self, status):
+    def __init__(self, status, extended=False):
         self.status = status
+        self.extended = extended
 
     @property
     def id(self):
@@ -104,7 +105,16 @@ class FakeStatus(object):
 
     @property
     def text(self):
+        if self.extended:
+            raise AttributeError("'Status' object has no attribute 'text'")
         return self.status['text']
+
+    @property
+    def full_text(self):
+        if not self.extended:
+            raise AttributeError(
+                "'Status' object has no attribute 'full_text'")
+        return self.status['full_text']
 
     @property
     def extended_entities(self):
@@ -112,7 +122,7 @@ class FakeStatus(object):
 
     @property
     def retweeted_status(self):
-        return FakeStatus(self.status['retweeted_status'])
+        return FakeStatus(self.status['retweeted_status'], self.extended)
 
 
 class FakeTweepyApi(object):
@@ -127,22 +137,25 @@ class FakeTweepyApi(object):
     def _set_statuses(self, statuses):
         self._statuses = copy.deepcopy(statuses)
 
-    def __get_timeline(self, tl):
+    def __get_timeline(self, tl, tweet_mode):
         if isinstance(tl, TweepError):
             raise tl
         statuses = list()
+        extended = tweet_mode == 'extended'
         for status_dict in tl:
-            statuses.append(FakeStatus(status_dict))
+            statuses.append(FakeStatus(status_dict, extended))
         return statuses
 
-    def user_timeline(self, account, since_id):
+    def user_timeline(self, account, since_id, tweet_mode=None):
         # ignore since_id in this mock
-        return self.__get_timeline(self._statuses['user'][account])
+        return self.__get_timeline(self._statuses['user'][account],
+                                   tweet_mode)
 
-    def list_timeline(self, owner_screen_name, slug, since_id):
+    def list_timeline(self, owner_screen_name, slug, since_id,
+                      tweet_mode=None):
         # ignore since_id in this mock
         return self.__get_timeline(
-            self._statuses['list'][owner_screen_name][slug])
+            self._statuses['list'][owner_screen_name][slug], tweet_mode)
 
     def retweet(self, status_id):
         if status_id in self._retweet_ids:
