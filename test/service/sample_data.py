@@ -20,19 +20,23 @@ from test.utils import obj
 sample_user_statuses = [
     {
         "id": 789035945014145025,
-        "text": "Ede-chan is promising voice actor"
+        "text": "Ede-chan is promising voice actor",
+        "full_text": "Ede-chan is promising voice actor"
     },
     {
         "id": 789031958014135025,
         "text": "RT @seiyu1: I will take a role of new character.",
+        "full_text": "RT @seiyu1: I will take a role of new character.",
         "retweeted_status": {
             "id": 769030958014135025,
-            "text": "I will take a role of new character"
+            "text": "I will take a role of new character",
+            "full_text": "I will take a role of new character"
         }
     },
     {
         "id": 789029558014135025,
         "text": "Recording will start soon :)",
+        "full_text": "Recording will start soon :)",
         "extended_entities": {
             'media': [
                 {
@@ -50,30 +54,36 @@ sample_user_statuses = [
     },
     {
         "id": 789027958014135025,
-        "text": "RT @animeseiyu: Ede-chan will be on the stage!",
+        "text": "RT @animeseiyu: stage report, attendees are Ari-chan, Maria-chan an...",
+        "full_text": "RT @animeseiyu: stage report, attendees are Ari-chan, Maria-chan an...",
         "retweeted_status": {
             "id": 769027958014135025,
-            "text": "Ede-chan will be on the stage!"
+            "text": "stage report, attendees are Ari-chan, Maria-chan and Ede-chan",
+            "full_text": "stage report, attendees are Ari-chan, Maria-chan and Ede-chan"
         }
     },
     {
         "id": 789025958014135025,
-        "text": "New anime program will be available soon"
+        "text": "New anime program will be available soon",
+        "full_text": "New anime program will be available soon"
     },
     {
         "id": 789025945014135025,
-        "text": "We will invite Ede-chan for ANIME Fes!!"
+        "text": "We will invite Ede-chan for ANIME Fes!!",
+        "full_text": "We will invite Ede-chan for ANIME Fes!!"
     }
 ]
 
 sample_user_statuses_incl_reply = [
     {
         "id": 889035945014145025,
-        "text": "Ede-chan is promising voice actor"
+        "text": "Ede-chan is promising voice actor",
+        "full_text": "Ede-chan is promising voice actor"
     },
     {
         "id": 889029558014135025,
         "text": "Recording will start soon :)",
+        "full_text": "Recording will start soon :)",
         "extended_entities": {
             'media': [
                 {
@@ -91,30 +101,45 @@ sample_user_statuses_incl_reply = [
     },
     {
         "id": 889025958014135025,
-        "text": "@edechaninfo Thank you for listening Ede-chan radio"
+        "text": "@edechaninfo Thank you for listening Ede-chan radio",
+        "full_text": "@edechaninfo Thank you for listening Ede-chan radio"
     },
     {
         "id": 889025945014135025,
-        "text": "We will invite Ede-chan for ANIME Fes!!"
+        "text": "We will invite Ede-chan for ANIME Fes!!",
+        "full_text": "We will invite Ede-chan for ANIME Fes!!"
     }
 ]
 
 sample_list_statuses = [
     {
         "id": 789085945014145025,
-        "text": "New cast announcement: Kaede Hondo!"
+        "text": "New cast announcement: Kaede Hondo!",
+        "full_text": "New cast announcement: Kaede Hondo!"
     },
     {
         "id": 789075958014135025,
-        "text": "Blu-ray of KEIJO vol.1 is on sale!"
+        "text": "Blu-ray of KEIJO vol.1 is on sale!",
+        "full_text": "Blu-ray of KEIJO vol.1 is on sale!"
     },
     {
         "id": 789065945014135025,
-        "text": "I went to Disney Land with my friend Ede-chan"
+        "text": "I went to Disney Land with my friend Ede-c... https://t.co/c9bJ9KtchC",
+        "full_text": "I went to Disney Land with my friend Ede-chan https://t.co/c9bJ9KtchC",
+        "extended_entities": {
+            'media': [
+                {
+                    'id': 789065945014135026,
+                    'media_url': 'http://pbs.twimg.com/media/hogehoge.jpg',
+                    'type': 'photo'
+                }
+            ]
+        }
     },
     {
         "id": 789058945014135025,
-        "text": "Ede-chan likes to behave like Maria-chan"
+        "text": "Ede-chan likes to behave like Maria-chan",
+        "full_text": "Ede-chan likes to behave like Maria-chan"
     }
 ]
 

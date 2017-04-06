@@ -44,7 +44,8 @@ def bot_handler(env, conf):
             if type == 'user':
                 try:
                     tweets = tapi.user_timeline(account,
-                                                since_id=env_since_id)
+                                                since_id=env_since_id,
+                                                tweet_mode='extended')
                 except TweepError as e:
                     errMsg = ("Cannot get timeline for user:{account} "
                               "[id {id}]").format(**condition)
@@ -58,7 +59,8 @@ def bot_handler(env, conf):
                 try:
                     tweets = tapi.list_timeline(owner_screen_name=account,
                                                 slug=slug,
-                                                since_id=env_since_id)
+                                                since_id=env_since_id,
+                                                tweet_mode='extended')
                 except TweepError as e:
                     errMsg = ("Cannot get timeline for list:{account}:"
                               "{slug} [id {id}]").format(**condition)
@@ -70,46 +72,65 @@ def bot_handler(env, conf):
                                condition)
                 continue
 
+            rt_of_rt = condition.get('rt_of_rt', False)
             for status in tweets:
                 matches = False
+                full_text = status.full_text
+
+                # if retweet of retweet is allowed, full_text is
+                # rewritten by retweeted_status.full_text if
+                # retweeted_status is available because
+                # retweeted_status.full_text is 'real' full text
+                if rt_of_rt and hasattr(status, 'retweeted_status'):
+                    full_text = status.retweeted_status.full_text
+
+                # check inclusion conditions
                 for str_cond in condition.get('match_strings', []):
-                    if str_cond in status.text:
+                    if str_cond in full_text:
                         matches = True
                         break
                 if condition.get('photo'):
                     if hasattr(status, 'extended_entities'):
                         matches = True
-                # reply tweet must not be retweeted
-                if status.text.startswith('@'):
+
+                # check exclusion conditions
+
+                if matches and full_text.startswith('@'):
+                    # reply tweet must not be retweeted
                     matches = False
-                # retweet of retweet (default is 'not allowed')
-                if not condition.get('rt_of_rt', False) and \
-                        hasattr(status, 'retweeted_status'):
-                    logger.info("Following tweet is not made by original "
-                                "author so not retweeted:\n%s",
-                                status.text.encode('utf_8'))
-                    matches = False
+                if matches:
+                    # retweet of retweet is 'not allowed', retweet status
+                    # is not allowed
+                    if not rt_of_rt and hasattr(status, 'retweeted_status'):
+                        logger.info("Following tweet is not made by original "
+                                    "author so not retweeted:\n%s",
+                                    full_text.encode('utf_8'))
+                        matches = False
                 if matches:
                     # Even if condition matches, tweets are filtered by
                     # blacklist keywords
                     for blk_word in condition.get('blacklist_keywords', []):
-                        if blk_word in status.text:
+                        if blk_word in full_text:
                             matches = False
                             msg = ("Keyword '%s' is blacklist so following "
                                    "tweet is not retweeted:\n%s")
-                            logger.info(msg % (blk_word,
-                                               status.text.encode('utf_8')))
+                            logger.info(msg %
+                                        (blk_word, full_text.encode('utf_8')))
                             break
+
+                # finally condition matches, this status will be retweeted
                 if matches:
                     try:
                         tapi.retweet(status.id)
                         logger.info("Retweeted successfully: \n" +
-                                    status.text.encode('utf_8'))
+                                    full_text.encode('utf_8'))
                     except TweepError as e:
                         if 'You have already retweeted this tweet.' \
                                 not in e.reason:
                             success = False
                             logger.error(str(e))
+
+                # get latest status id from which is searched in next cycle
                 if since_id < status.id:
                     since_id = status.id
         except Exception as e:
