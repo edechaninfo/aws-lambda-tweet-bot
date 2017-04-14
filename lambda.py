@@ -18,12 +18,14 @@ import sys
 
 from config import Config
 from aws_lambda_tweet_bot.utils import get_dynamodb_table
-from aws_lambda_tweet_bot.service import blog_watch, conditional_rt
+from aws_lambda_tweet_bot.service import blog_watch, conditional_rt, \
+    ameba_now_watch
 
 
 SERVICES = [
     blog_watch,
-    conditional_rt
+    conditional_rt,
+    ameba_now_watch
 ]
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
