@@ -79,7 +79,7 @@ class TestAmebaNowWatch(unittest.TestCase):
     def test_ameba_now_watch_short(self):
         now_item = dict(
             id="edechan",
-            text_length=15,
+            text_length=Decimal(15),
             body_format="[Now Update] {text} {time} -> {url} #Ede-chan"
         )
         tw = FakeTweepyApi()

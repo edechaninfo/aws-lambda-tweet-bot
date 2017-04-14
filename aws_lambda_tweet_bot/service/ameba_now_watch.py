@@ -128,7 +128,7 @@ def bot_handler(env, conf):
             body_format = now_item.get('body_format')
             if not body_format:
                 raise KeyError("body_format must be defined")
-            max_len = now_item.get('text_length', TEXT_DEFAULT_MAX)
+            max_len = int(now_item.get('text_length', TEXT_DEFAULT_MAX))
 
             api_endpoint = AMEBA_NOW_HOST + '/api/entryList/' + now_item['id']
             parsed = _now_parsed_body(api_endpoint)
