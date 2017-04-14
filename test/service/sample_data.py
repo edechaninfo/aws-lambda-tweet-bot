@@ -1095,3 +1095,64 @@ new window.ameblo.EntryDetailResize({
 </script></body>
 </html>
 '''
+
+sample_ameblo_now_xml_body = '''<?xml version="1.0" encoding="utf-8" ?>
+
+<response status="success">
+<status>success</status>
+<htmlData><![CDATA[
+<li class="now" data-myentry="false" data-entry-id="2024209752" data-ameba-id="hondo-kaede">
+    <p class="content">
+        <span class="status">
+            <a href="/hondo-kaede/2024209752/" class="skinWeakColor time">[4/10 00:29]</a>
+        </span>
+        <span class="entry">
+            <span class="text">Thank you for coming to Girlish Number's Event! Please take a rest! I will post a blog article soon :)</span>
+                <span class="device"></span>
+        </span>
+    </p>
+
+<div class="actions"> <a class="action skinCommentsIco" data-action="comment" data-deny-reply-flag="0" data-private-reply-flag="0" href="/hondo-kaede/2024209752/">Comment</a> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn " id="curiousCnt_2024209752" data-curious-cnt="11" href="http://now.ameba.jp/hondo-kaede/2024209752/curiousUserList/"><i></i><u></u> 11 </a> </span> </div>
+</li>
+<li class="now" data-myentry="false" data-entry-id="2023952834" data-ameba-id="hondo-kaede">
+    <p class="content">
+        <span class="status">
+            <a href="/hondo-kaede/2023952834/" class="skinWeakColor time">[4/1 23:42]</a>
+        </span>
+        <span class="entry">
+            <span class="text">I watched Hokkyoku Ramen on TV</span>
+                <span class="device"></span>
+        </span>
+    </p>
+
+<div class="actions"> <a class="action skinCommentsIco" data-action="comment" data-deny-reply-flag="0" data-private-reply-flag="0" href="/hondo-kaede/2023952834/">Comment</a> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn " id="curiousCnt_2023952834" data-curious-cnt="11" href="http://now.ameba.jp/hondo-kaede/2023952834/curiousUserList/"><i></i><u></u> 11 </a> </span> </div>
+</li>
+<li class="now" data-myentry="false" data-entry-id="2023933629" data-ameba-id="hondo-kaede">
+    <p class="content">
+        <span class="status">
+            <a href="/hondo-kaede/2023933629/" class="skinWeakColor time">[4/1 13:35]</a>
+        </span>
+        <span class="entry">
+            <span class="text">Have you already done flower watching??</span>
+                <span class="device"></span>
+        </span>
+    </p>
+
+<div class="actions"> <a class="action skinCommentsIco" data-action="comment" data-deny-reply-flag="0" data-private-reply-flag="0" href="/hondo-kaede/2023933629/">Comment</a> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn " id="curiousCnt_2023933629" data-curious-cnt="9" href="http://now.ameba.jp/hondo-kaede/2023933629/curiousUserList/"><i></i><u></u> 9 </a> </span> </div>
+</li>
+<li class="now" data-myentry="false" data-entry-id="2023930001" data-ameba-id="hondo-kaede">
+    <p class="content">
+        <span class="status">
+            <a href="/hondo-kaede/2023930001/" class="skinWeakColor time">[4/1 10:37]</a>
+        </span>
+        <span class="entry">
+            <span class="text">Testing "Now" now. Hello!</span>
+                <span class="device"></span>
+        </span>
+    </p>
+
+<div class="actions"> <a class="action skinCommentsIco" data-action="comment" data-deny-reply-flag="0" data-private-reply-flag="0" href="/hondo-kaede/2023930001/">Comment</a> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn " id="curiousCnt_2023930001" data-curious-cnt="11" href="http://now.ameba.jp/hondo-kaede/2023930001/curiousUserList/"><i></i><u></u> 11 </a> </span> </div>
+</li>
+]]></htmlData>
+</response>
+'''

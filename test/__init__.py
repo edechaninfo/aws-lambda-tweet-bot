@@ -17,6 +17,7 @@ import copy
 import logging
 import sys
 
+from requests.exceptions import ConnectionError
 from tweepy import TweepError
 
 from test.utils import validate_data_for_dynamo_db
@@ -170,3 +171,22 @@ class FakeTweepyApi(object):
             self._update_status_error_count += 1
             raise TweepError('Status is a duplicate.')
         self._update_statuses.append(body)
+
+
+class FakeRequests(object):
+    def __init__(self, url_body_pairs={}):
+        self.url_body_pairs = url_body_pairs
+
+    def get(self, url):
+        class FakeResponseClass(object):
+            def __init__(self, body):
+                self._text = body
+
+            @property
+            def text(self):
+                return self._text
+        body = self.url_body_pairs.get(url)
+        if body is not None:
+            return FakeResponseClass(body)
+        else:
+            raise ConnectionError()

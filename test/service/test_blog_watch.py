@@ -17,11 +17,9 @@ from mock import patch
 import time
 import unittest
 
-from requests.exceptions import ConnectionError
-
 from config import Config
 from aws_lambda_tweet_bot.service import blog_watch
-from test import FakeDynamodbTable, FakeTweepyApi, FakeLogger
+from test import FakeDynamodbTable, FakeTweepyApi, FakeLogger, FakeRequests
 from test.service.sample_data import sample_blog_data, sample_blog_data2, \
     sample_blog_data3, sample_ameblo_blog_body
 from test.utils import obj, validate_data_for_dynamo_db
@@ -43,25 +41,6 @@ class FakeFeedparser(object):
 
     def parse(self, url):
         return self.results.get(url, self.DEFAULT_RETURN)
-
-
-class FakeRequests(object):
-    def __init__(self, url_body_pairs={}):
-        self.url_body_pairs = url_body_pairs
-
-    def get(self, url):
-        class FakeResponseClass(object):
-            def __init__(self, body):
-                self._text = body
-
-            @property
-            def text(self):
-                return self._text
-        body = self.url_body_pairs.get(url)
-        if body is not None:
-            return FakeResponseClass(body)
-        else:
-            raise ConnectionError()
 
 
 class TestBlogWatch(unittest.TestCase):

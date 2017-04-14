@@ -17,7 +17,7 @@ import setuptools
 
 
 setuptools.setup(name='aws_lambda_tweet_bot',
-                 version='1.3.0',
+                 version='1.4.0',
                  author='edechaninfo',
                  author_email='edechaninfo@gmail.com',
                  packages=setuptools.find_packages(),
