@@ -1101,6 +1101,32 @@ sample_ameblo_now_xml_body = '''<?xml version="1.0" encoding="utf-8" ?>
 <response status="success">
 <status>success</status>
 <htmlData><![CDATA[
+<li class="now" data-myentry="false" data-entry-id="2024494193" data-ameba-id="hondo-kaede">
+    <p class="content">
+        <span class="status">
+            <a href="/hondo-kaede/2024494193/" class="skinWeakColor time">[4/19 15:22]</a>
+        </span>
+        <span class="entry">
+            <span class="text">Thank you for placing comments to me. I'm repeating the song Fifteenth Moon infinitely. So good..</span>
+                <span class="device"></span>
+        </span>
+    </p>
+
+<div class="actions"> <a class="action skinCommentsIco" data-action="comment" data-deny-reply-flag="0" data-private-reply-flag="0" href="/hondo-kaede/2024494193/">Comment</a> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn " id="curiousCnt_2024494193" data-curious-cnt="26" href="http://now.ameba.jp/hondo-kaede/2024494193/curiousUserList/"><i></i><u></u> 26 </a> </span> </div>
+</li>
+<li class="now" data-myentry="false" data-entry-id="2024361621" data-ameba-id="hondo-kaede">
+    <p class="content">
+        <span class="status">
+            <a href="/hondo-kaede/2024361621/" class="skinWeakColor time">[4/15 06:17]</a>
+        </span>
+        <span class="entry">
+            <span class="text">I felt that this service should be closed. <a href="http://yahoo.co.jp" target="_blank">http://yahoo.co.jp</a> internal URL testing.</span>
+                <span class="device"></span>
+        </span>
+    </p>
+
+<div class="actions"> <a class="action " data-action="comment" data-deny-reply-flag="0" data-private-reply-flag="0" href="/hondo-kaede/2024361621/">Comment</a> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn zero " id="curiousCnt_2024361621" data-curious-cnt="0" href="http://now.ameba.jp/hondo-kaede/2024361621/curiousUserList/"><i></i><u></u> 0 </a> </span> </div>
+</li>
 <li class="now" data-myentry="false" data-entry-id="2024209752" data-ameba-id="hondo-kaede">
     <p class="content">
         <span class="status">
@@ -1127,6 +1153,19 @@ sample_ameblo_now_xml_body = '''<?xml version="1.0" encoding="utf-8" ?>
 
 <div class="actions"> <a class="action skinCommentsIco" data-action="comment" data-deny-reply-flag="0" data-private-reply-flag="0" href="/hondo-kaede/2023952834/">Comment</a> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn " id="curiousCnt_2023952834" data-curious-cnt="11" href="http://now.ameba.jp/hondo-kaede/2023952834/curiousUserList/"><i></i><u></u> 11 </a> </span> </div>
 </li>
+<li class="now" data-myentry="false" data-entry-id="2023952830" data-ameba-id="hondo-kaede">
+    <p class="content">
+        <span class="status">
+            <a href="/hondo-kaede/2023952830/" class="skinWeakColor time">[4/1 19:44]</a>
+        </span>
+        <span class="entry">
+            <span class="text">All 12 stories of "Konobi!" in niconico anime special program. Yo-ho!! <a href="https://t.co/kVhnL7p515" target="_blank">https://t.co/kVhnL7p515</a></span>
+                <span class="device"></span>
+        </span>
+    </p>
+
+<div class="actions"> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn " id="curiousCnt_2023952830" data-curious-cnt="49" href="http://now.ameba.jp/hondo-kaede/2023952830/curiousUserList/"><i></i><u></u> 49 </a> </span> </div>
+</li>
 <li class="now" data-myentry="false" data-entry-id="2023933629" data-ameba-id="hondo-kaede">
     <p class="content">
         <span class="status">
@@ -1152,6 +1191,22 @@ sample_ameblo_now_xml_body = '''<?xml version="1.0" encoding="utf-8" ?>
     </p>
 
 <div class="actions"> <a class="action skinCommentsIco" data-action="comment" data-deny-reply-flag="0" data-private-reply-flag="0" href="/hondo-kaede/2023930001/">Comment</a> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn " id="curiousCnt_2023930001" data-curious-cnt="11" href="http://now.ameba.jp/hondo-kaede/2023930001/curiousUserList/"><i></i><u></u> 11 </a> </span> </div>
+</li>
+<li class="now" data-myentry="false" data-entry-id="2023810192" data-ameba-id="hondo-kaede">
+    <p class="content">
+        <span class="status">
+            <a href="/hondo-kaede/2023810192/" class="skinWeakColor time">[3/28 18:25]</a>
+        </span>
+        <span class="entry">
+            <span class="text">Oh (;_;) Love all. Not at all...</span>
+                <span class="device"></span>
+        </span>
+            <span class="photoArea">
+                <img data-action="photo" data-original-image="http://stat001.ameba.jp/user_images/20170328/18/hondo-kaede/a8/ca/j/o0320024013900429342.jpg" src="http://stat001.ameba.jp/user_images/20170328/18/hondo-kaede/a8/ca/j/t02200165_0320024013900429342.jpg" alt="">
+            </span>
+    </p>
+
+<div class="actions"> <span class="curious nologin "> <a class="curiousBtn nologin" data-action="curious" data-fb-status=" " href="#">Watched</a><a class="curiousCntBtn " id="curiousCnt_2023810192" data-curious-cnt="58" href="http://now.ameba.jp/hondo-kaede/2023810192/curiousUserList/"><i></i><u></u> 58 </a> </span> </div>
 </li>
 ]]></htmlData>
 </response>
