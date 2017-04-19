@@ -60,21 +60,39 @@ class TestAmebaNowWatch(unittest.TestCase):
              sample_ameblo_now_xml_body})
 
         self._bot_handler(env, self.config, tw, dynamo, req)
-        self.assertEqual(2, len(tw._update_statuses))
-        self.assertEqual(Decimal(2024209752),
+        self.assertEqual(5, len(tw._update_statuses))
+        self.assertEqual(Decimal(2024494193),
                          env['latest_id_indexes']['edechan'])
 
         result_status_1 = \
-            "[Now Update] Thank you for coming to Girlish Number's Event!" + \
-            " Please take a rest! I will post ... " + \
-            "[4/10 00:29] -> http://now.ameba.jp/hondo-kaede/2024209752/ " + \
+            "[Now Update] All 12 stories of \"Konobi!\" in niconico anime" + \
+            " special program. Yo-ho!!  " + \
+            "[4/1 19:44] -> http://now.ameba.jp/hondo-kaede/2023952830/ " + \
             "#Ede-chan"
         result_status_2 = \
             "[Now Update] I watched Hokkyoku Ramen on TV " + \
             "[4/1 23:42] -> http://now.ameba.jp/hondo-kaede/2023952834/ " + \
             "#Ede-chan"
+        result_status_3 = \
+            "[Now Update] Thank you for coming to Girlish Number's Event!" + \
+            " Please take a rest! I will post ... " + \
+            "[4/10 00:29] -> http://now.ameba.jp/hondo-kaede/2024209752/ " + \
+            "#Ede-chan"
+        result_status_4 = \
+            "[Now Update] I felt that this service should be closed.  " + \
+            "internal URL testing. " + \
+            "[4/15 06:17] -> http://now.ameba.jp/hondo-kaede/2024361621/ " + \
+            "#Ede-chan"
+        result_status_5 = \
+            "[Now Update] Thank you for placing comments to me. I'm " + \
+            "repeating the song Fifteenth Moon infi... " + \
+            "[4/19 15:22] -> http://now.ameba.jp/hondo-kaede/2024494193/ " + \
+            "#Ede-chan"
         self.assertIn(result_status_1, tw._update_statuses)
         self.assertIn(result_status_2, tw._update_statuses)
+        self.assertIn(result_status_3, tw._update_statuses)
+        self.assertIn(result_status_4, tw._update_statuses)
+        self.assertIn(result_status_5, tw._update_statuses)
 
     def test_ameba_now_watch_short(self):
         now_item = dict(
@@ -85,26 +103,21 @@ class TestAmebaNowWatch(unittest.TestCase):
         tw = FakeTweepyApi()
         dynamo = FakeDynamodbTable([now_item])
         env = {'twitter_env': 'test',
-               'latest_id_indexes': {'edechan': Decimal(2023933629)}}
+               'latest_id_indexes': {'edechan': Decimal(2024361621)}}
         req = FakeRequests(
             {'http://now.ameba.jp/api/entryList/edechan':
              sample_ameblo_now_xml_body})
 
         self._bot_handler(env, self.config, tw, dynamo, req)
-        self.assertEqual(2, len(tw._update_statuses))
-        self.assertEqual(Decimal(2024209752),
+        self.assertEqual(1, len(tw._update_statuses))
+        self.assertEqual(Decimal(2024494193),
                          env['latest_id_indexes']['edechan'])
 
         result_status_1 = \
-            "[Now Update] Thank you for c... " + \
-            "[4/10 00:29] -> http://now.ameba.jp/hondo-kaede/2024209752/ " + \
-            "#Ede-chan"
-        result_status_2 = \
-            "[Now Update] I watched Hokky... " + \
-            "[4/1 23:42] -> http://now.ameba.jp/hondo-kaede/2023952834/ " + \
+            "[Now Update] Thank you for p... " + \
+            "[4/19 15:22] -> http://now.ameba.jp/hondo-kaede/2024494193/ " + \
             "#Ede-chan"
         self.assertIn(result_status_1, tw._update_statuses)
-        self.assertIn(result_status_2, tw._update_statuses)
 
     def test_ameba_now_watch_empty_latest_index(self):
         now_item = dict(
@@ -119,8 +132,8 @@ class TestAmebaNowWatch(unittest.TestCase):
              sample_ameblo_now_xml_body})
 
         self._bot_handler(env, self.config, tw, dynamo, req)
-        self.assertEqual(4, len(tw._update_statuses))
-        self.assertEqual(Decimal(2024209752),
+        self.assertEqual(8, len(tw._update_statuses))
+        self.assertEqual(Decimal(2024494193),
                          env['latest_id_indexes']['edechan'])
 
 

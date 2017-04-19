@@ -44,6 +44,8 @@ class AmebaNowParser(HTMLParser):
         self.in_entry_id = None
         self.in_time_body = False
         self.in_text_body = False
+        self.in_text_body_a = False
+        self.text = ""
 
     # handle unicode error in ameblo
     def parse_starttag(self, i):
@@ -62,6 +64,8 @@ class AmebaNowParser(HTMLParser):
                 self.in_entry_id = int(entry_id)
                 self.parsed_info[self.in_entry_id] = {"entry_id": entry_id}
         elif tag == 'a':
+            if self.in_text_body:
+                self.in_text_body_a = True
             href = None
             is_time = False
             for key, val in attrs:
@@ -82,15 +86,19 @@ class AmebaNowParser(HTMLParser):
     def handle_data(self, data):
         if self.in_time_body:
             self.parsed_info[self.in_entry_id]["time"] = data
-        if self.in_text_body:
-            self.parsed_info[self.in_entry_id]["text"] = data
+        if self.in_text_body and not self.in_text_body_a:
+            self.text += data
 
     def handle_endtag(self, tag):
         if tag == 'li':
             self.in_entry_id = None
-        if tag == 'a' and self.in_time_body:
+        elif tag == 'a' and self.in_time_body:
             self.in_time_body = False
-        if tag == 'span' and self.in_text_body:
+        elif tag == 'a' and self.in_text_body_a:
+            self.in_text_body_a = False
+        elif tag == 'span' and self.in_text_body:
+            self.parsed_info[self.in_entry_id]["text"] = self.text
+            self.text = ""
             self.in_text_body = False
 
 
