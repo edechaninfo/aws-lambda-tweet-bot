@@ -119,6 +119,32 @@ class TestAmebaNowWatch(unittest.TestCase):
             "#Ede-chan"
         self.assertIn(result_status_1, tw._update_statuses)
 
+    def test_ameba_now_watch_short_with_truncate_sub(self):
+        now_item = dict(
+            id="edechan",
+            text_length=Decimal(15),
+            body_format="[Now Update] {text} {time} -> {url} #Ede-chan",
+            truncate_sub="...(truncated)"
+        )
+        tw = FakeTweepyApi()
+        dynamo = FakeDynamodbTable([now_item])
+        env = {'twitter_env': 'test',
+               'latest_id_indexes': {'edechan': Decimal(2024361621)}}
+        req = FakeRequests(
+            {'http://now.ameba.jp/api/entryList/edechan':
+             sample_ameblo_now_xml_body})
+
+        self._bot_handler(env, self.config, tw, dynamo, req)
+        self.assertEqual(1, len(tw._update_statuses))
+        self.assertEqual(Decimal(2024494193),
+                         env['latest_id_indexes']['edechan'])
+
+        result_status_1 = \
+            "[Now Update] Thank you for p...(truncated) " + \
+            "[4/19 15:22] -> http://now.ameba.jp/hondo-kaede/2024494193/ " + \
+            "#Ede-chan"
+        self.assertIn(result_status_1, tw._update_statuses)
+
     def test_ameba_now_watch_empty_latest_index(self):
         now_item = dict(
             id="edechan",
