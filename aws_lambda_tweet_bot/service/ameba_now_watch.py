@@ -81,6 +81,8 @@ class AmebaNowParser(HTMLParser):
             for key, val in attrs:
                 if key == 'class' and 'text' in val:
                     is_text = True
+                elif key == 'class' and 'photoArea' in val:
+                    self.parsed_info[self.in_entry_id]["has_photo"] = True
             self.in_text_body = is_text
 
     def handle_data(self, data):
@@ -137,6 +139,7 @@ def bot_handler(env, conf):
             if not body_format:
                 raise KeyError("body_format must be defined")
             max_len = int(now_item.get('text_length', TEXT_DEFAULT_MAX))
+            photo_sub = now_item.get('photo_sub', '')
 
             api_endpoint = AMEBA_NOW_HOST + '/api/entryList/' + now_item['id']
             parsed = _now_parsed_body(api_endpoint)
@@ -147,6 +150,9 @@ def bot_handler(env, conf):
                         AMEBA_NOW_HOST + entry['href'].encode('utf_8')
                     if len(entry['text']) > max_len:
                         entry['text'] = entry['text'][:max_len] + '...'
+                    entry['photo_sub'] = ''
+                    if entry.get('has_photo'):
+                        entry['photo_sub'] = photo_sub
 
                     try:
                         twbody = body_format.format(**entry)
