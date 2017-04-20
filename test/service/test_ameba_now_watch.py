@@ -136,6 +136,63 @@ class TestAmebaNowWatch(unittest.TestCase):
         self.assertEqual(Decimal(2024494193),
                          env['latest_id_indexes']['edechan'])
 
+    def test_ameba_now_watch_photo_sub_format(self):
+        now_item = dict(
+            id="edechan",
+            body_format="[Now Update] {text} {photo_sub} -> {url} #Ede-chan",
+            photo_sub="[Photo Available]",
+            text_length=Decimal(15)
+        )
+        tw = FakeTweepyApi()
+        dynamo = FakeDynamodbTable([now_item])
+        env = {'twitter_env': 'test'}
+        req = FakeRequests(
+            {'http://now.ameba.jp/api/entryList/edechan':
+             sample_ameblo_now_xml_body})
+
+        self._bot_handler(env, self.config, tw, dynamo, req)
+        self.assertEqual(8, len(tw._update_statuses))
+
+        result_status_1 = \
+            "[Now Update] Oh (;_;) Love a... [Photo Available] " + \
+            "-> http://now.ameba.jp/hondo-kaede/2023810192/ " + \
+            "#Ede-chan"
+        # space is increased
+        result_status_8 = \
+            "[Now Update] Thank you for p...  " + \
+            "-> http://now.ameba.jp/hondo-kaede/2024494193/ " + \
+            "#Ede-chan"
+        self.assertEqual(result_status_1, tw._update_statuses[0])
+        self.assertEqual(result_status_8, tw._update_statuses[7])
+
+    def test_ameba_now_watch_photo_sub_format_without_photo_sub_value(self):
+        now_item = dict(
+            id="edechan",
+            body_format="[Now Update] {text} {photo_sub} -> {url} #Ede-chan",
+            text_length=Decimal(15)
+        )
+        tw = FakeTweepyApi()
+        dynamo = FakeDynamodbTable([now_item])
+        env = {'twitter_env': 'test'}
+        req = FakeRequests(
+            {'http://now.ameba.jp/api/entryList/edechan':
+             sample_ameblo_now_xml_body})
+
+        self._bot_handler(env, self.config, tw, dynamo, req)
+        self.assertEqual(8, len(tw._update_statuses))
+
+        result_status_1 = \
+            "[Now Update] Oh (;_;) Love a...  " + \
+            "-> http://now.ameba.jp/hondo-kaede/2023810192/ " + \
+            "#Ede-chan"
+        # space is increased
+        result_status_8 = \
+            "[Now Update] Thank you for p...  " + \
+            "-> http://now.ameba.jp/hondo-kaede/2024494193/ " + \
+            "#Ede-chan"
+        self.assertEqual(result_status_1, tw._update_statuses[0])
+        self.assertEqual(result_status_8, tw._update_statuses[7])
+
 
 if __name__ == '__main__':
     unittest.main()
