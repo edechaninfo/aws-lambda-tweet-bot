@@ -16,6 +16,7 @@ from decimal import Decimal
 from HTMLParser import HTMLParser
 import logging
 import time
+import re
 
 import feedparser
 import requests
@@ -27,6 +28,9 @@ from aws_lambda_tweet_bot.utils import get_dynamodb_table, get_tweepy_api
 SERVICE_ID = 'blog-watch'
 logger = logging.getLogger('aws_lambda_tweet_bot.service.blog_watch')
 logger.setLevel(logging.INFO)
+
+
+AMEBLO_LINK_PTN = r"http://ameblo\.jp/[^/]+/entry-\d+\.html"
 
 
 class AmebloBodyParser(HTMLParser):
@@ -81,12 +85,18 @@ def _blog_body(link):
         return ""
 
 
+def _is_pr(feed_entry):
+    if not re.match(AMEBLO_LINK_PTN, feed_entry.link):
+        return True
+    return False
+
+
 def _match_search_condition(db_item, feed_entry, latest_date):
     match = False
     # Check if this entry should be searched
     if latest_date < time.mktime(feed_entry.published_parsed):
         # Remove PR RSS Article
-        if not feed_entry.title.startswith('PR:'):
+        if not _is_pr(feed_entry):
             title_search_condition = db_item.get('search_condition', None)
             body_search = db_item.get('body_search', False)
 
