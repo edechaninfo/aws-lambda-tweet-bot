@@ -29,7 +29,7 @@ logger.setLevel(logging.INFO)
 
 
 AMEBA_NOW_HOST = 'http://now.ameba.jp'
-TEXT_DEFAULT_MAX = 80
+TEXT_DEFAULT_MAX = 70
 
 
 # Ameba Now CDATA parser. parsed_data conatins

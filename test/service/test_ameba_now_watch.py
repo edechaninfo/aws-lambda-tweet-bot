@@ -16,34 +16,53 @@ from decimal import Decimal
 from mock import patch
 import unittest
 
-from config import Config
 from aws_lambda_tweet_bot.service import ameba_now_watch
-from test import FakeDynamodbTable, FakeTweepyApi, FakeLogger, FakeRequests
+from test import FakeTweepyApi, FakeRequests
 from test.service.sample_data import sample_ameblo_now_xml_body
-from test.utils import validate_data_for_dynamo_db
+from test.service.base import BaseTest
 
 
 PATH_NOW_WATCH = "aws_lambda_tweet_bot.service.ameba_now_watch"
-D_TARGET = PATH_NOW_WATCH + ".get_dynamodb_table"
 T_TARGET = PATH_NOW_WATCH + ".get_tweepy_api"
 
 
-class TestAmebaNowWatch(unittest.TestCase):
+class TestAmebaNowWatch(BaseTest):
     def setUp(self):
-        self.config = Config()
-        self.logger = FakeLogger()
+        super(TestAmebaNowWatch, self).setUp()
+        self.dynamo.create_table(
+            AttributeDefinitions=[
+                {
+                    'AttributeName': 'id',
+                    'AttributeType': 'S'
+                },
+            ],
+            TableName='test_ameba_now_watch',
+            KeySchema=[
+                {
+                    'AttributeName': 'id',
+                    'KeyType': 'HASH'
+                },
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 1,
+                'WriteCapacityUnits': 1
+            },
+        )
+        self.service_id = ameba_now_watch.SERVICE_ID
 
-    def _bot_handler(self, env, conf, mock_tweepy, mock_dynamodb, mock_req):
-        # check input env
-        validate_data_for_dynamo_db(env)
+    def tearDown(self):
+        super(TestAmebaNowWatch, self).tearDown()
+        self.dynamo.delete_table(TableName='test_ameba_now_watch')
 
-        with patch(D_TARGET, return_value=mock_dynamodb):
-            with patch(T_TARGET, return_value=mock_tweepy):
-                with patch(PATH_NOW_WATCH + '.requests', mock_req):
-                    ameba_now_watch.logger = self.logger
-                    ret = ameba_now_watch.bot_handler(env, conf)
+    def _bot_handler(self, conf, mock_tweepy, mock_req):
+        env = self.get_env_from_local_dynamodb(self.service_id)
+
+        with patch(T_TARGET, return_value=mock_tweepy):
+            with patch(PATH_NOW_WATCH + '.requests', mock_req):
+                ameba_now_watch.logger = self.logger
+                ret = ameba_now_watch.bot_handler(env, conf)
         # check output env
-        validate_data_for_dynamo_db(env)
+        self.set_env_to_local_dynamodb(self.service_id, env)
         return ret
 
     def test_ameba_now_watch(self):
@@ -51,22 +70,25 @@ class TestAmebaNowWatch(unittest.TestCase):
             id="edechan",
             body_format="[Now Update] {text} {time} -> {url} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([now_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('ameba_now_watch', [now_item])
         env = {'twitter_env': 'test',
                'latest_id_indexes': {'edechan': Decimal(2023933629)}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
         req = FakeRequests(
             {'http://now.ameba.jp/api/entryList/edechan':
              sample_ameblo_now_xml_body})
 
-        self._bot_handler(env, self.config, tw, dynamo, req)
+        self._bot_handler(self.config, tw, req)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(5, len(tw._update_statuses))
         self.assertEqual(Decimal(2024494193),
                          env['latest_id_indexes']['edechan'])
 
         result_status_1 = \
             "[Now Update] All 12 stories of \"Konobi!\" in niconico anime" + \
-            " special program. Yo-ho!!  " + \
+            " special program. Yo-ho!!... " + \
             "[4/1 19:44] -> http://now.ameba.jp/hondo-kaede/2023952830/ " + \
             "#Ede-chan"
         result_status_2 = \
@@ -75,7 +97,7 @@ class TestAmebaNowWatch(unittest.TestCase):
             "#Ede-chan"
         result_status_3 = \
             "[Now Update] Thank you for coming to Girlish Number's Event!" + \
-            " Please take a rest! I will post ... " + \
+            " Please take a rest! I ... " + \
             "[4/10 00:29] -> http://now.ameba.jp/hondo-kaede/2024209752/ " + \
             "#Ede-chan"
         result_status_4 = \
@@ -85,7 +107,7 @@ class TestAmebaNowWatch(unittest.TestCase):
             "#Ede-chan"
         result_status_5 = \
             "[Now Update] Thank you for placing comments to me. I'm " + \
-            "repeating the song Fifteenth Moon infi... " + \
+            "repeating the song Fifteenth... " + \
             "[4/19 15:22] -> http://now.ameba.jp/hondo-kaede/2024494193/ " + \
             "#Ede-chan"
         self.assertIn(result_status_1, tw._update_statuses)
@@ -100,15 +122,18 @@ class TestAmebaNowWatch(unittest.TestCase):
             text_length=Decimal(15),
             body_format="[Now Update] {text} {time} -> {url} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([now_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('ameba_now_watch', [now_item])
         env = {'twitter_env': 'test',
                'latest_id_indexes': {'edechan': Decimal(2024361621)}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
         req = FakeRequests(
             {'http://now.ameba.jp/api/entryList/edechan':
              sample_ameblo_now_xml_body})
 
-        self._bot_handler(env, self.config, tw, dynamo, req)
+        self._bot_handler(self.config, tw, req)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(1, len(tw._update_statuses))
         self.assertEqual(Decimal(2024494193),
                          env['latest_id_indexes']['edechan'])
@@ -126,15 +151,18 @@ class TestAmebaNowWatch(unittest.TestCase):
             body_format="[Now Update] {text} {time} -> {url} #Ede-chan",
             truncate_sub="...(truncated)"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([now_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('ameba_now_watch', [now_item])
         env = {'twitter_env': 'test',
                'latest_id_indexes': {'edechan': Decimal(2024361621)}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
         req = FakeRequests(
             {'http://now.ameba.jp/api/entryList/edechan':
              sample_ameblo_now_xml_body})
 
-        self._bot_handler(env, self.config, tw, dynamo, req)
+        self._bot_handler(self.config, tw, req)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(1, len(tw._update_statuses))
         self.assertEqual(Decimal(2024494193),
                          env['latest_id_indexes']['edechan'])
@@ -150,14 +178,17 @@ class TestAmebaNowWatch(unittest.TestCase):
             id="edechan",
             body_format="[Now Update] {text} {time} -> {url} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([now_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('ameba_now_watch', [now_item])
         env = {'twitter_env': 'test'}
+        self.set_env_to_local_dynamodb(self.service_id, env)
         req = FakeRequests(
             {'http://now.ameba.jp/api/entryList/edechan':
              sample_ameblo_now_xml_body})
 
-        self._bot_handler(env, self.config, tw, dynamo, req)
+        self._bot_handler(self.config, tw, req)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(8, len(tw._update_statuses))
         self.assertEqual(Decimal(2024494193),
                          env['latest_id_indexes']['edechan'])
@@ -169,14 +200,16 @@ class TestAmebaNowWatch(unittest.TestCase):
             photo_sub="[Photo Available]",
             text_length=Decimal(15)
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([now_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('ameba_now_watch', [now_item])
         env = {'twitter_env': 'test'}
+        self.set_env_to_local_dynamodb(self.service_id, env)
         req = FakeRequests(
             {'http://now.ameba.jp/api/entryList/edechan':
              sample_ameblo_now_xml_body})
 
-        self._bot_handler(env, self.config, tw, dynamo, req)
+        self._bot_handler(self.config, tw, req)
+
         self.assertEqual(8, len(tw._update_statuses))
 
         result_status_1 = \
@@ -197,14 +230,16 @@ class TestAmebaNowWatch(unittest.TestCase):
             body_format="[Now Update] {text} {photo_sub} -> {url} #Ede-chan",
             text_length=Decimal(15)
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([now_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('ameba_now_watch', [now_item])
         env = {'twitter_env': 'test'}
+        self.set_env_to_local_dynamodb(self.service_id, env)
         req = FakeRequests(
             {'http://now.ameba.jp/api/entryList/edechan':
              sample_ameblo_now_xml_body})
 
-        self._bot_handler(env, self.config, tw, dynamo, req)
+        self._bot_handler(self.config, tw, req)
+
         self.assertEqual(8, len(tw._update_statuses))
 
         result_status_1 = \

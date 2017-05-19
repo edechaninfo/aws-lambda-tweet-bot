@@ -17,16 +17,16 @@ from mock import patch
 import time
 import unittest
 
-from config import Config
+
 from aws_lambda_tweet_bot.service import blog_watch
-from test import FakeDynamodbTable, FakeTweepyApi, FakeLogger, FakeRequests
+from test import FakeTweepyApi, FakeRequests
 from test.service.sample_data import sample_blog_data, sample_blog_data2, \
     sample_blog_data3, sample_ameblo_blog_body
-from test.utils import obj, validate_data_for_dynamo_db
+from test.service.base import BaseTest
+from test.utils import obj
 
 
 PATH_BLOG_WATCH = "aws_lambda_tweet_bot.service.blog_watch"
-D_TARGET = PATH_BLOG_WATCH + ".get_dynamodb_table"
 T_TARGET = PATH_BLOG_WATCH + ".get_tweepy_api"
 
 
@@ -43,29 +43,50 @@ class FakeFeedparser(object):
         return self.results.get(url, self.DEFAULT_RETURN)
 
 
-class TestBlogWatch(unittest.TestCase):
+class TestBlogWatch(BaseTest):
     def setUp(self):
-        self.config = Config()
-        self.logger = FakeLogger()
+        super(TestBlogWatch, self).setUp()
+        self.dynamo.create_table(
+            AttributeDefinitions=[
+                {
+                    'AttributeName': 'id',
+                    'AttributeType': 'S'
+                },
+            ],
+            TableName='test_blog_watch',
+            KeySchema=[
+                {
+                    'AttributeName': 'id',
+                    'KeyType': 'HASH'
+                },
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 1,
+                'WriteCapacityUnits': 1
+            },
+        )
+        self.service_id = blog_watch.SERVICE_ID
+
+    def tearDown(self):
+        super(TestBlogWatch, self).tearDown()
+        self.dynamo.delete_table(TableName='test_blog_watch')
 
     def _mktime(self, strtime):
         return Decimal(
             time.mktime(time.strptime(strtime, '%Y/%m/%d %H:%M:%S')))
 
-    def _bot_handler(self, env, conf, mock_tweepy, mock_dynamodb, mock_feed):
-        # check input env
-        validate_data_for_dynamo_db(env)
+    def _bot_handler(self, conf, mock_tweepy, mock_feed):
+        env = self.get_env_from_local_dynamodb(self.service_id)
 
         def _fake_feedparse(url):
             return mock_feed.parse(url)
 
-        with patch(D_TARGET, return_value=mock_dynamodb):
-            with patch(T_TARGET, return_value=mock_tweepy):
-                with patch('feedparser.parse', _fake_feedparse):
-                    blog_watch.logger = self.logger
-                    ret = blog_watch.bot_handler(env, conf)
+        with patch(T_TARGET, return_value=mock_tweepy):
+            with patch('feedparser.parse', _fake_feedparse):
+                blog_watch.logger = self.logger
+                ret = blog_watch.bot_handler(env, conf)
         # check output env
-        validate_data_for_dynamo_db(env)
+        self.set_env_to_local_dynamodb(self.service_id, env)
         return ret
 
     def test_blog_watch(self):
@@ -77,14 +98,17 @@ class TestBlogWatch(unittest.TestCase):
             search_condition="Ede:",
             body_format="[New Update] {title} -> {link} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/08/28 15:21:59')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(2, len(tw._update_statuses))
         self.assertEqual(self._mktime('2016/09/12 23:59:59'),
                          env['pubdate_indexes']['feed'])
@@ -105,15 +129,18 @@ class TestBlogWatch(unittest.TestCase):
             search_condition="Ede:",
             body_format="[New Update] {title} -> {link} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/08/28 15:21:59'),
                    'unavail': self._mktime('2016/12/28 15:21:59')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(2, len(tw._update_statuses))
         self.assertEqual(self._mktime('2016/09/12 23:59:59'),
                          env['pubdate_indexes']['feed'])
@@ -135,8 +162,9 @@ class TestBlogWatch(unittest.TestCase):
             search_condition="Hondo",
             body_format="[Guest Info] '{title}' -> {link} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item_1, feed_item_2])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch',
+                                         [feed_item_1, feed_item_2])
         feed = FakeFeedparser({
             "http://existsite.io/feed": sample_blog_data,
             "http://otherexistsite.io/feed": sample_blog_data2})
@@ -144,8 +172,11 @@ class TestBlogWatch(unittest.TestCase):
                'pubdate_indexes': {
                    'feed': self._mktime('2016/08/28 15:21:59'),
                    'feed_other': self._mktime('2016/12/31 20:14:14')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(3, len(tw._update_statuses))
         # For blog 1
         self.assertEqual(self._mktime('2016/09/12 23:59:59'),
@@ -182,8 +213,9 @@ class TestBlogWatch(unittest.TestCase):
             search_condition="Hondo",
             body_format="[Guest Info] '{title}' -> {link} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item_1, feed_item_2])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch',
+                                         [feed_item_1, feed_item_2])
         feed = FakeFeedparser({
             "http://existsite.io/feed": {},  # Feed result is unexpected
             "http://otherexistsite.io/feed": sample_blog_data2})
@@ -191,8 +223,11 @@ class TestBlogWatch(unittest.TestCase):
                'pubdate_indexes': {
                    'feed': self._mktime('2016/08/28 15:21:59'),
                    'feed_other': self._mktime('2016/12/31 20:14:14')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         # unchange blog 1
         self.assertEqual(self._mktime('2016/08/28 15:21:59'),
                          env['pubdate_indexes']['feed'])
@@ -211,14 +246,17 @@ class TestBlogWatch(unittest.TestCase):
             feed="http://existsite.io/feed",
             body_format="[New Update] {title} -> {link}"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/08/28 15:21:59')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(3, len(tw._update_statuses))
         self.assertEqual(self._mktime('2016/09/12 23:59:59'),
                          env['pubdate_indexes']['feed'])
@@ -231,14 +269,17 @@ class TestBlogWatch(unittest.TestCase):
                       "entry-12208663600.html",
             search_condition="Ede:"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/08/28 15:21:59')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(0, len(tw._update_statuses))
         self.assertEqual("Unexpected error on service blog-watch: "
                          "Please check DB record (id: feed)"
@@ -255,18 +296,21 @@ class TestBlogWatch(unittest.TestCase):
             latest_id="http://ameblo.jp/fruits-box-blog/"
                       "entry-12208663600.html",
             search_condition="Ede:",
-            body_format="[New Update] {titl} -> {link} #Ede-chan"
+            body_format="[New Update] {itle} -> {link} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/08/28 15:21:59')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(0, len(tw._update_statuses))
-        self.assertIn('{titl} is not available in blog entry.',
+        self.assertIn('{itle} is not available in blog entry.',
                       self.logger.lines_dict['error'][0])
         # unchange blog 1
         self.assertEqual(self._mktime('2016/08/28 15:21:59'),
@@ -279,13 +323,16 @@ class TestBlogWatch(unittest.TestCase):
             search_condition="Ede:",
             body_format="[New Update] {title} -> {link} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test'}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
         with patch('time.time', return_value=1500000000.3):
-            self._bot_handler(env, self.config, tw, dynamo, feed)
+            self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(0, len(tw._update_statuses))
         # No tweet, but pubdate_indexes is added as current time
         self.assertEqual(1500000000.3, env['pubdate_indexes']['feed'])
@@ -299,14 +346,17 @@ class TestBlogWatch(unittest.TestCase):
             body_format="[New Update] {title} -> {link}",
             search_condition="Ede:"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/09/11 23:59:59')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(0, len(tw._update_statuses))
         # No update, but index is moved to latest pubdate
         self.assertEqual(self._mktime('2016/09/12 23:59:59'),
@@ -322,25 +372,29 @@ class TestBlogWatch(unittest.TestCase):
             body_format="[New Update] {title} -> {link}"
         )
         tw = FakeTweepyApi(update_error=True)
-        dynamo = FakeDynamodbTable([feed_item])
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/08/28 21:21:59')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(0, len(tw._update_statuses))
         # Tweet error, so index is not moved
         self.assertEqual(self._mktime('2016/08/28 21:21:59'),
                          env['pubdate_indexes']['feed'])
 
     def test_empty_blogs(self):
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [])
         feed = FakeFeedparser()
         env = {'twitter_env': 'test'}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
         self.assertEqual(0, len(tw._update_statuses))
         self.assertEqual(1, len(self.logger.lines_dict['info']))
 
@@ -349,12 +403,13 @@ class TestBlogWatch(unittest.TestCase):
             id="wrong_feed",
             feed="http://noexistsite.io/feed"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([wrong_feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [wrong_feed_item])
         feed = FakeFeedparser()
         env = {'twitter_env': 'test'}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
         self.assertEqual(0, len(tw._update_statuses))
         self.assertIn('No entries. Please check feed url setting.',
                       self.logger.lines_dict['error'][0])
@@ -368,14 +423,17 @@ class TestBlogWatch(unittest.TestCase):
             search_condition="Ede:",
             body_format="[New Update] {title} -> {link} #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/08/28 15:21:59')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(self._mktime('2016/09/12 23:59:59'),
                          env['pubdate_indexes']['feed'])
 
@@ -388,7 +446,7 @@ class TestBlogWatch(unittest.TestCase):
             return match
         # blog_watch._match_search_condition = _fake_match_search_condition
         with patch(PATH_BLOG_WATCH + '._match_search_condition', _fake_msc):
-            self._bot_handler(env, self.config, tw, dynamo, feed)
+            self._bot_handler(self.config, tw, feed)
         self.assertEqual(0, len(self.logger.lines_dict['error']))
 
     def test_blog_body_search_mock(self):
@@ -400,8 +458,8 @@ class TestBlogWatch(unittest.TestCase):
             body_search_conditions=["Hondo-chan"],
             body_format="[New Update] {title} -> {link} #Ari-chan #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data3})
         req = FakeRequests(
             {'http://ameblo.jp/ari-step/entry-12226218315.html':
@@ -409,9 +467,12 @@ class TestBlogWatch(unittest.TestCase):
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/07/21 13:14:14')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
         with patch(PATH_BLOG_WATCH + '.requests', req):
-            self._bot_handler(env, self.config, tw, dynamo, feed)
+            self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         result_status = "[New Update] Look this -> " + \
             "http://ameblo.jp/ari-step/entry-12226218315.html " + \
             "#Ari-chan #Ede-chan"
@@ -430,8 +491,8 @@ class TestBlogWatch(unittest.TestCase):
             body_search_conditions=["4DX"],
             body_format="[New Update] {title} -> {link} #Ari-chan #Ede-chan"
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data3})
         req = FakeRequests(
             {'http://ameblo.jp/ari-step/entry-12226218315.html':
@@ -439,9 +500,12 @@ class TestBlogWatch(unittest.TestCase):
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
                    'feed': self._mktime('2016/07/21 13:14:14')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
         with patch(PATH_BLOG_WATCH + '.requests', req):
-            self._bot_handler(env, self.config, tw, dynamo, feed)
+            self._bot_handler(self.config, tw, feed)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(0, len(tw._update_statuses))
         self.assertEqual(self._mktime('2016/08/21 23:14:14'),
                          env['pubdate_indexes']['feed'])
@@ -579,9 +643,11 @@ class TestBlogWatch(unittest.TestCase):
             body_search_conditions=[u"\u672c\u6e21"]
             # hondo in Kanji
         )
-        tw = FakeTweepyApi()
-        dynamo = FakeDynamodbTable([ogusan_feed_item, kyarisan_feed_item,
-                                    tanoway_feed_item, arichan_feed_item])
+        tw = FakeTweepyApi(config=self.config)
+        self.add_items_to_local_dynamodb('blog_watch', [ogusan_feed_item,
+                                                        kyarisan_feed_item,
+                                                        tanoway_feed_item,
+                                                        arichan_feed_item])
         feed = FakeFeedparser(
             {"http://existsite.io/ogusan": ogusan_blog_data,
              "http://existsite.io/kyarisan": kyarisan_blog_data,
@@ -593,8 +659,9 @@ class TestBlogWatch(unittest.TestCase):
                    'kyarisan': self._mktime('2016/06/28 15:21:59'),
                    'tanoway': self._mktime('2016/06/28 15:21:59'),
                    'arichan': self._mktime('2016/06/28 15:21:59')}}
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, tw, dynamo, feed)
+        self._bot_handler(self.config, tw, feed)
         self.assertEqual(5, len(tw._update_statuses))
 
 

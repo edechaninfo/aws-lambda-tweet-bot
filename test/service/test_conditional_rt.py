@@ -18,43 +18,66 @@ import unittest
 from tweepy import TweepError
 
 from aws_lambda_tweet_bot.service import conditional_rt
-from config import Config
-from test import FakeDynamodbTable, FakeTweepyApi, FakeLogger
+from test import FakeTweepyApi
 from test.service.sample_data import sample_user_statuses, \
     sample_list_statuses, sample_user_statuses_incl_reply
-from test.utils import validate_data_for_dynamo_db
+from test.service.base import BaseTest
 
 
-D_TARGET = "aws_lambda_tweet_bot.service.conditional_rt.get_dynamodb_table"
 T_TARGET = "aws_lambda_tweet_bot.service.conditional_rt.get_tweepy_api"
 
 
-class TestConditionalRT(unittest.TestCase):
+class TestConditionalRT(BaseTest):
     def setUp(self):
-        self.config = Config()
-        self.logger = FakeLogger()
+        super(TestConditionalRT, self).setUp()
+        self.dynamo.create_table(
+            AttributeDefinitions=[
+                {
+                    'AttributeName': 'id',
+                    'AttributeType': 'N'
+                },
+            ],
+            TableName='test_tweet_watch',
+            KeySchema=[
+                {
+                    'AttributeName': 'id',
+                    'KeyType': 'HASH'
+                },
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 1,
+                'WriteCapacityUnits': 1
+            },
+        )
+        self.service_id = conditional_rt.SERVICE_ID
 
-    def _bot_handler(self, env, conf, mock_tweepy, mock_dynamodb):
-        # check input env
-        validate_data_for_dynamo_db(env)
+    def tearDown(self):
+        super(TestConditionalRT, self).tearDown()
+        self.dynamo.delete_table(TableName='test_tweet_watch')
 
-        with patch(D_TARGET, return_value=mock_dynamodb):
-            with patch(T_TARGET, return_value=mock_tweepy):
-                conditional_rt.logger = self.logger
-                ret = conditional_rt.bot_handler(env, conf)
+    def _bot_handler(self, conf, mock_tweepy):
+        env = self.get_env_from_local_dynamodb(self.service_id)
+
+        with patch(T_TARGET, return_value=mock_tweepy):
+            conditional_rt.logger = self.logger
+            ret = conditional_rt.bot_handler(env, conf)
         # check output env
-        validate_data_for_dynamo_db(env)
+        self.set_env_to_local_dynamodb(self.service_id, env)
         return ret
 
     def test_user_timeline(self):
         tweet_watches = [
             dict(id=5, type='user', account='acc', match_strings=['Ede-chan'])
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
-        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)))
+        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)),
+                                    config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=709025945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(2, len(mock_tweepy._retweet_ids))
         self.assertEqual(789035945014145025, env['since_id'])
         self.assertIn(789035945014145025, mock_tweepy._retweet_ids)
@@ -65,12 +88,16 @@ class TestConditionalRT(unittest.TestCase):
             dict(id=6, type='list', account='acc', slug='list',
                  match_strings=['Ede-chan'])
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
         mock_tweepy = FakeTweepyApi(dict(list=dict(acc=dict(
-            list=sample_list_statuses))))
+            list=sample_list_statuses))),
+            config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=788058945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(2, len(mock_tweepy._retweet_ids))
         self.assertEqual(789085945014145025, env['since_id'])
         self.assertIn(789065945014135025, mock_tweepy._retweet_ids)
@@ -80,12 +107,16 @@ class TestConditionalRT(unittest.TestCase):
         tweet_watches = [
             dict(id=5, type='user', account='acc', match_strings=['Ede-chan'])
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
         mock_tweepy = FakeTweepyApi(
-            dict(user=dict(acc=sample_user_statuses_incl_reply)))
+            dict(user=dict(acc=sample_user_statuses_incl_reply)),
+            config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=809025945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(2, len(mock_tweepy._retweet_ids))
         self.assertEqual(889035945014145025, env['since_id'])
         self.assertIn(889035945014145025, mock_tweepy._retweet_ids)
@@ -96,11 +127,15 @@ class TestConditionalRT(unittest.TestCase):
             dict(id=5, type='user', account='acc', match_strings=['Ede-chan'],
                  photo=True)
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
-        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)))
+        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)),
+                                    config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=709025945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(3, len(mock_tweepy._retweet_ids))
         self.assertEqual(789035945014145025, env['since_id'])
         self.assertIn(789035945014145025, mock_tweepy._retweet_ids)
@@ -112,11 +147,15 @@ class TestConditionalRT(unittest.TestCase):
             dict(id=5, type='user', account='acc', match_strings=['Ede-chan'],
                  rt_of_rt=True)
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
-        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)))
+        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)),
+                                    config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=709025945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(3, len(mock_tweepy._retweet_ids))
         self.assertEqual(789035945014145025, env['since_id'])
         self.assertIn(789035945014145025, mock_tweepy._retweet_ids)
@@ -129,12 +168,16 @@ class TestConditionalRT(unittest.TestCase):
                  match_strings=['Ede-chan'],
                  blacklist_keywords=['Maria-chan'])
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
         mock_tweepy = FakeTweepyApi(dict(list=dict(acc=dict(
-            list=sample_list_statuses))))
+            list=sample_list_statuses))),
+            config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=788058945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(1, len(mock_tweepy._retweet_ids))
         self.assertEqual(789085945014145025, env['since_id'])
         self.assertIn(789065945014135025, mock_tweepy._retweet_ids)
@@ -149,13 +192,17 @@ class TestConditionalRT(unittest.TestCase):
             dict(id=6, type='list', account='acc', slug='list',
                  match_strings=['Ede-chan'])
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
         mock_tweepy = FakeTweepyApi(dict(
             user=dict(acc=sample_user_statuses),
-            list=dict(acc=dict(list=sample_list_statuses))))
+            list=dict(acc=dict(list=sample_list_statuses))),
+            config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=788058945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(4, len(mock_tweepy._retweet_ids))
         self.assertEqual(789085945014145025, env['since_id'])
 
@@ -164,12 +211,16 @@ class TestConditionalRT(unittest.TestCase):
             dict(id=6, type='list', account='acc', slug='list',
                  match_strings=['Ede-chan', 'Hondo'])
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
         mock_tweepy = FakeTweepyApi(dict(list=dict(acc=dict(
-            list=sample_list_statuses))))
+            list=sample_list_statuses))),
+            config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=788058945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(3, len(mock_tweepy._retweet_ids))
         self.assertEqual(789085945014145025, env['since_id'])
         self.assertIn(789085945014145025, mock_tweepy._retweet_ids)
@@ -188,19 +239,27 @@ class TestConditionalRT(unittest.TestCase):
             dict(id=6, type='list', account='acc', slug='list',
                  match_strings=['Ede-chan']),
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
         mock_tweepy = FakeTweepyApi(dict(
             user=dict(acc=sample_user_statuses),
-            list=dict(acc=dict(list=sample_list_statuses))))
+            list=dict(acc=dict(list=sample_list_statuses))),
+            config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=788058945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(4, len(mock_tweepy._retweet_ids))
         self.assertEqual(789085945014145025, env['since_id'])
-        self.assertIn('account field is required',
-                      self.logger.lines_dict['error'][0])
-        self.assertIn('slug field is required for list type',
-                      self.logger.lines_dict['error'][1])
+        errmsg7 = "Unexpected error on service conditional-rt: " + \
+            "Please check DB record (id: 7): Msg -> " + \
+            "'account field is required'"
+        errmsg8 = "Unexpected error on service conditional-rt: " + \
+            "Please check DB record (id: 8): Msg -> " + \
+            "'slug field is required for list type'"
+        self.assertIn(errmsg7, self.logger.lines_dict['error'])
+        self.assertIn(errmsg8, self.logger.lines_dict['error'])
         self.assertIn('unknown account type',
                       self.logger.lines_dict['warning'][0])
 
@@ -208,11 +267,15 @@ class TestConditionalRT(unittest.TestCase):
         tweet_watches = [
             dict(id=5, type='user', account='acc', match_strings=[])
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
-        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)))
+        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)),
+                                    config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=709025945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(0, len(mock_tweepy._retweet_ids))
         self.assertEqual(789035945014145025, env['since_id'])
 
@@ -220,11 +283,15 @@ class TestConditionalRT(unittest.TestCase):
         tweet_watches = [
             dict(id=5, type='user', account='acc', photo=True)
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
-        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)))
+        mock_tweepy = FakeTweepyApi(dict(user=dict(acc=sample_user_statuses)),
+                                    config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=709025945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(1, len(mock_tweepy._retweet_ids))
         self.assertIn(789029558014135025, mock_tweepy._retweet_ids)
         self.assertEqual(789035945014145025, env['since_id'])
@@ -234,12 +301,15 @@ class TestConditionalRT(unittest.TestCase):
             dict(id=6, type='list', account='acc', slug='list',
                  match_strings=['Ede-chan'])
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
         mock_tweepy = FakeTweepyApi(dict(
-            list=dict(acc=dict(list=TweepError('something happened')))))
+            list=dict(acc=dict(list=TweepError('something happened')))),
+            config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=788058945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
         self.assertEqual(0, len(mock_tweepy._retweet_ids))
         self.assertEqual("Cannot get timeline for list:acc:list [id 6]: "
                          "message=something happened",
@@ -259,13 +329,17 @@ class TestConditionalRT(unittest.TestCase):
             dict(id=6, type='list', account='acc', slug='list',
                  match_strings=['Ede-chan'])
         ]
-        mock_dynamodb = FakeDynamodbTable(tweet_watches)
         mock_tweepy = FakeTweepyApi(dict(
             user=dict(acc=TweepError('something happened')),
-            list=dict(acc=dict(list=sample_list_statuses))))
+            list=dict(acc=dict(list=sample_list_statuses))),
+            config=self.config)
+        self.add_items_to_local_dynamodb('tweet_watch', tweet_watches)
         env = dict(twitter_env='test', since_id=788058945014135025)
+        self.set_env_to_local_dynamodb(self.service_id, env)
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(2, len(mock_tweepy._retweet_ids))
         self.assertEqual(0, mock_tweepy._retweet_error_count)
         self.assertEqual(788058945014135025, env['since_id'])
@@ -278,7 +352,9 @@ class TestConditionalRT(unittest.TestCase):
             user=dict(acc=sample_user_statuses),
             list=dict(acc=dict(list=sample_list_statuses))))
 
-        self._bot_handler(env, self.config, mock_tweepy, mock_dynamodb)
+        self._bot_handler(self.config, mock_tweepy)
+
+        env = self.get_env_from_local_dynamodb(self.service_id)
         self.assertEqual(4, len(mock_tweepy._retweet_ids))
         self.assertEqual(2, mock_tweepy._retweet_error_count)
         self.assertEqual(789085945014145025, env['since_id'])

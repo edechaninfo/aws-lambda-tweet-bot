@@ -144,7 +144,7 @@ def bot_handler(env, conf):
                     try:
                         twbody = blog_item['body_format'].format(**entry)
                     except KeyError as e:
-                        errKey = str(e)[1:-1]
+                        errKey = e.message.encode('utf_8')
                         raise Exception("{%s} is not available in blog "
                                         "entry. Please check body_format." %
                                         errKey)
