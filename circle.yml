@@ -1,0 +1,12 @@
+machine:
+  services:
+  - docker
+
+dependencies:
+  override:
+  - docker pull peopleperhour/dynamodb
+
+test:
+  override:
+  - docker run -d --name dynamodb -p 8000:8000 peopleperhour/dynamodb
+  - python ./setup.py test

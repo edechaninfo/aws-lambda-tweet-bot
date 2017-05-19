@@ -15,10 +15,13 @@
 from collections import defaultdict
 import copy
 import logging
+import os
 import sys
 
 from requests.exceptions import ConnectionError
 from tweepy import TweepError
+
+from aws_lambda_tweet_bot.utils import get_tweepy_api
 
 from test.utils import validate_data_for_dynamo_db
 
@@ -127,13 +130,32 @@ class FakeStatus(object):
 
 
 class FakeTweepyApi(object):
-    def __init__(self, statuses={}, update_error=False):
+    def __init__(self, statuses={}, update_error=False, config=None):
         self._retweet_ids = list()
         self._retweet_error_count = 0
         self._update_statuses = list()
         self._update_status_error_count = 0
         self._set_statuses(statuses)
         self._update_error = update_error
+
+        self._test_with_service = []
+        self._tw_api = None
+
+        # Enable real twitter testing
+        tw_test = os.environ.get('TW_TEST_ENABLED', 'f')
+        if tw_test.lower() not in ('0', 'f', 'false', 'none'):
+            if config:
+                self._tw_api = get_tweepy_api('test', config)
+                self._read_env_vars()
+
+    def _read_env_vars(self):
+        """
+        Acceptable env variables: TW_TEST_UPDATE_STATUS
+        """
+        for srv in ['update_status']:
+            val = os.environ.get('TW_TEST_' + srv.upper(), 'f')
+            if val.lower() not in ('0', 'f', 'false', 'none'):
+                self._test_with_service.append(srv)
 
     def _set_statuses(self, statuses):
         self._statuses = copy.deepcopy(statuses)
@@ -171,6 +193,13 @@ class FakeTweepyApi(object):
             self._update_status_error_count += 1
             raise TweepError('Status is a duplicate.')
         self._update_statuses.append(body)
+        # Test with real twitter server
+        if 'update_status' in self._test_with_service:
+            try:
+                self._tw_api.update_status(body)
+            except TweepError as e:
+                if 'Status is a duplicate.' not in e.reason:
+                    raise e
 
 
 class FakeRequests(object):

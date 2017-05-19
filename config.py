@@ -24,24 +24,31 @@ logger.setLevel(logging.INFO)
 class Config(object):
     # default values
     values = dict(
-        tenant_id='',
+        tenant_id=None,
         aws_config=dict(
-            aws_access_key_id='',
-            aws_secret_access_key='',
-            region_name=''
+            aws_access_key_id=None,
+            aws_secret_access_key=None,
+            region_name=None,
+            endpoint_url=None,
         ),
         twitter_config=dict(
             development=dict(
-                consumer_key='',
-                consumer_secret='',
-                access_token='',
-                access_secret='',
+                consumer_key=None,
+                consumer_secret=None,
+                access_token=None,
+                access_secret=None,
             ),
             production=dict(
-                consumer_key='',
-                consumer_secret='',
-                access_token='',
-                access_secret='',
+                consumer_key=None,
+                consumer_secret=None,
+                access_token=None,
+                access_secret=None,
+            ),
+            test=dict(
+                consumer_key=None,
+                consumer_secret=None,
+                access_token=None,
+                access_secret=None,
             )
         )
     )
@@ -59,14 +66,33 @@ class Config(object):
         self.values['tenant_id'] = self._safe_parse('default', 'tenant_id', p)
 
         for key in ['aws_access_key_id', 'aws_secret_access_key',
-                    'region_name']:
+                    'region_name', 'endpoint_url']:
             self.values['aws_config'][key] = self._safe_parse('aws', key, p)
 
-        for type in ['production', 'development']:
+        for type in ['production', 'development', 'test']:
             for key in ['consumer_key', 'consumer_secret', 'access_token',
                         'access_secret']:
                 self.values['twitter_config'][type][key] = \
                     self._safe_parse('twitter:' + type, key, p)
+
+        self._fill_by_environment_variables()
+
+    def _fill_by_environment_variables(self):
+        """
+        Fill None twitter config values with following environment variables.
+        Basically, that will be filled in CI system
+        - TW_{TYPE}_CONSUMER_KEY: consumer_key
+        - TW_{TYPE}_CONSUMER_SECRET: consumer_secret
+        - TW_{TYPE}_ACCESS_TOKEN: access_token
+        - TW_{TYPE}_ACCESS_SECRET: access_secret
+        """
+        for type in ['production', 'development', 'test']:
+            for key in ['consumer_key', 'consumer_secret', 'access_token',
+                        'access_secret']:
+                if self.values['twitter_config'][type][key] is None:
+                    self.values['twitter_config'][type][key] = \
+                        os.environ.get('TW_{}_{}'.format(type.upper(),
+                                                         key.upper()))
 
     def _safe_parse(self, section, option, parser):
         try:
@@ -74,7 +100,7 @@ class Config(object):
         except Exception:
             logger.warning("Read config error: section: %s, option: %s" %
                            (section, option))
-        return ""
+        return None
 
     @property
     def tenant_id(self):
