@@ -153,7 +153,7 @@ sample_blog_data = {
         obj(published_parsed=time.strptime('2016/09/12 23:59:59',
                                            '%Y/%m/%d %H:%M:%S'),
             title='Minyami: Wake up, girls',
-            link='http://ameblo.jp/fruits-box-blog/entry-12211554968.html'),
+            link='https://ameblo.jp/fruits-box-blog/entry-12211554968.html'),
         obj(published_parsed=time.strptime('2016/09/11 12:00:00',
                                            '%Y/%m/%d %H:%M:%S'),
             title='PR: How to become a project leader',
@@ -161,7 +161,7 @@ sample_blog_data = {
         obj(published_parsed=time.strptime('2016/09/10 17:21:59',
                                            '%Y/%m/%d %H:%M:%S'),
             title='Ede: Yoru-night!',
-            link='http://ameblo.jp/fruits-box-blog/entry-12210698546.html'),
+            link='https://ameblo.jp/fruits-box-blog/entry-12210698546.html'),
         obj(published_parsed=time.strptime('2016/09/02 11:21:59',
                                            '%Y/%m/%d %H:%M:%S'),
             title='Goverment Notice Ede: PR',
@@ -169,7 +169,7 @@ sample_blog_data = {
         obj(published_parsed=time.strptime('2016/08/28 21:21:59',
                                            '%Y/%m/%d %H:%M:%S'),
             title='Ede: Pop in Q',
-            link='http://ameblo.jp/fruits-box-blog/entry-12208663602.html')
+            link='https://ameblo.jp/fruits-box-blog/entry-12208663602.html')
     ]
 }
 
@@ -183,15 +183,15 @@ sample_blog_data2 = {
         obj(published_parsed=time.strptime('2017/01/21 23:14:14',
                                            '%Y/%m/%d %H:%M:%S'),
             title='Hondo-san has come as our guest',
-            link='http://ameblo.jp/otakublo/entry-12311554968.html'),
+            link='https://ameblo.jp/otakublo/entry-12311554968.html'),
         obj(published_parsed=time.strptime('2016/12/31 20:14:14',
                                            '%Y/%m/%d %H:%M:%S'),
             title="We will invite secret guest for today's program'",
-            link='http://ameblo.jp/otakublo/entry-12290698546.html'),
+            link='https://ameblo.jp/otakublo/entry-12290698546.html'),
         obj(published_parsed=time.strptime('2016/12/05 05:14:14',
                                            '%Y/%m/%d %H:%M:%S'),
             title='Next program will feature girlish number',
-            link='http://ameblo.jp/otakublo/entry-12258663602.html')
+            link='https://ameblo.jp/otakublo/entry-12258663602.html')
     ]
 }
 
@@ -205,15 +205,15 @@ sample_blog_data3 = {
         obj(published_parsed=time.strptime('2016/08/21 23:14:14',
                                            '%Y/%m/%d %H:%M:%S'),
             title='In these days...',
-            link='http://ameblo.jp/ari-step/entry-12233144905.html'),
+            link='https://ameblo.jp/ari-step/entry-12233144905.html'),
         obj(published_parsed=time.strptime('2016/08/01 23:14:14',
                                            '%Y/%m/%d %H:%M:%S'),
             title='Look this',
-            link='http://ameblo.jp/ari-step/entry-12226218315.html'),
+            link='https://ameblo.jp/ari-step/entry-12226218315.html'),
         obj(published_parsed=time.strptime('2016/07/21 23:14:14',
                                            '%Y/%m/%d %H:%M:%S'),
             title='4DX!!',
-            link='http://ameblo.jp/ari-step/entry-12224195011.html')
+            link='https://ameblo.jp/ari-step/entry-12224195011.html')
     ]
 }
 
@@ -228,7 +228,7 @@ sample_ameblo_blog_body = '''
 <meta property="og:locale" content="ja_JP" />
 <meta property="og:title" content="Look at this :)" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://ameblo.jp/ari-step/entry-12226218315.html" />
+<meta property="og:url" content="https://ameblo.jp/ari-step/entry-12226218315.html" />
 <meta property="og:image" content="http://stat.ameba.jp/user_images/20161206/16/ari-step/46/1c/j/o0800045013815202951.jpg" />
 <meta property="og:site_name" content="Step on the blue sky" />
 <meta property="og:description" content="BBK BRNK with Hondo-chan and Maria-chan" />
@@ -239,7 +239,7 @@ sample_ameblo_blog_body = '''
 <meta property="al:android:package" content="jp.ameba">
 <meta property="al:android:app_name" content="Ameba">
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:url" content="http://ameblo.jp/ari-step/entry-12226218315.html" />
+<meta name="twitter:url" content="https://ameblo.jp/ari-step/entry-12226218315.html" />
 <meta name="twitter:title" content="Look at this :)" />
 <meta name="twitter:description" content="BBK BRNK with Hondo-chan and Maria-chan" />
 <meta name="twitter:image" content="http://stat.ameba.jp/user_images/20161206/16/ari-step/46/1c/j/o0800045013815202951.jpg" />
@@ -255,7 +255,7 @@ sample_ameblo_blog_body = '''
 <link rel="alternate" href="ios-app://349442137/jpameblo/ameblo.jp/ari-step/entry0-12226218315.html" />
 <link rel="alternate" type="text/html" media="handheld" href="http://m.ameba.jp/m/blogArticle.do?guid=ON&unm=ari-step&articleId=12226218315" />
 <link rel="alternate" type="text/html" media="only screen and(max-device-width: 640px)" href="http://s.ameblo.jp/ari-step/entry-12226218315.html" />
-<link rel="canonical" href="http://ameblo.jp/ari-step/entry-12226218315.html">
+<link rel="canonical" href="https://ameblo.jp/ari-step/entry-12226218315.html">
 <title>Look at this :) | Step on the blue sky</title>
 <link rel="alternate" type="application/rss+xml" title="RSS" href="http://rssblog.ameba.jp/ari-step/rss20.xml" />
 <link rel="shortcut icon" href="http://stat100.ameba.jp/common_style/img/favicon.ico" />
@@ -404,7 +404,7 @@ src="https://www.facebook.com/tr?id=1600985630194213&ev=PageView&noscript=1"
 
 <div class="skinBlogHeadingGroupArea">
 <hgroup>
-<h1 class="skinTitleArea"><a href="http://ameblo.jp/ari-step/" class="skinTitle">Step on the blue sky</a></h1>
+<h1 class="skinTitleArea"><a href="https://ameblo.jp/ari-step/" class="skinTitle">Step on the blue sky</a></h1>
 <h2 class="skinDescriptionArea"><span class="skinDescription">Blog by Ari Ozawa</span></h2>
 </hgroup>
 </div>
@@ -435,14 +435,14 @@ src="https://www.facebook.com/tr?id=1600985630194213&ev=PageView&noscript=1"
 
 <div class="globalLinkArea">
   <ul class="globalLinkAreaInner">
-    <li class="globalLinkNavItem globalLinkNavTop"><a class="skinImgBtnS blogTopBtn" href="http://ameblo.jp/ari-step/"><span>Blog Top</span></a></li>
-    <li class="globalLinkNavItem globalLinkNavArticle"><a class="skinImgBtnS articleListBtn" href="http://ameblo.jp/ari-step/entrylist.html"><span>Article List</span></a></li>
-    <li class="globalLinkNavItem globalLinkNavImgList"><a class="skinImgBtnS imageListBtn" href="http://ameblo.jp/ari-step/imagelist.html"><span>Image List</span></a></li>
+    <li class="globalLinkNavItem globalLinkNavTop"><a class="skinImgBtnS blogTopBtn" href="https://ameblo.jp/ari-step/"><span>Blog Top</span></a></li>
+    <li class="globalLinkNavItem globalLinkNavArticle"><a class="skinImgBtnS articleListBtn" href="https://ameblo.jp/ari-step/entrylist.html"><span>Article List</span></a></li>
+    <li class="globalLinkNavItem globalLinkNavImgList"><a class="skinImgBtnS imageListBtn" href="https://ameblo.jp/ari-step/imagelist.html"><span>Image List</span></a></li>
   </ul>
 </div>
 
 <div class="pagingArea detailPaging largePagingArea">
-<a class="skinSimpleBtn pagingNext" href="http://ameblo.jp/ari-step/entry-12224195011.html">4DX!!<span class="pagingArrow">&nbsp;&raquo;</span></a>
+<a class="skinSimpleBtn pagingNext" href="https://ameblo.jp/ari-step/entry-12224195011.html">4DX!!<span class="pagingArrow">&nbsp;&raquo;</span></a>
 </div>
 <!--TopPagingBottom-->
 
@@ -456,7 +456,7 @@ src="https://www.facebook.com/tr?id=1600985630194213&ev=PageView&noscript=1"
 <div class="skinArticleHeader">
 <div class="skinArticleHeader2">
 
-<h1><a href="http://ameblo.jp/ari-step/entry-12226218315.html" class="skinArticleTitle" rel="bookmark">
+<h1><a href="https://ameblo.jp/ari-step/entry-12226218315.html" class="skinArticleTitle" rel="bookmark">
   Look at this :)
 </a>
 </h1>
@@ -470,15 +470,15 @@ src="https://www.facebook.com/tr?id=1600985630194213&ev=PageView&noscript=1"
 <div class="articleDetailArea skinWeakColor">
 <span class="articleTime"><time datetime="2016-12-06" pubdate="pubdate">Dec 6, 2016</time></span>
 <br />
-<span class="articleTheme">Theme<a href="http://ameblo.jp/ari-step/theme-10069459358.html" rel="tag">Blog</a></span>
+<span class="articleTheme">Theme<a href="https://ameblo.jp/ari-step/theme-10069459358.html" rel="tag">Blog</a></span>
 
 </div>
 
 <div class="articleText">
 In the recording of BBK BRNK, <br>this is Hondo-chan and Maria-chan.<br>
-<div align="left"><a id="i13815202951" class="detailOn" href="http://ameblo.jp/ari-step/image-12226218315-13815202951.html">
+<div align="left"><a id="i13815202951" class="detailOn" href="https://ameblo.jp/ari-step/image-12226218315-13815202951.html">
 <img src="http://stat.ameba.jp/user_images/20161206/16/ari-step/46/1c/j/o0800045013815202951.jpg?caw=800" width="310" /></a></div><br>
-Maria got a piece of bread from Hondo-chan.<br><div align="left"><a id="i13815202959" class="detailOn" href="http://ameblo.jp/ari-step/image-12226218315-13815202959.html">
+Maria got a piece of bread from Hondo-chan.<br><div align="left"><a id="i13815202959" class="detailOn" href="https://ameblo.jp/ari-step/image-12226218315-13815202959.html">
 <img src="http://stat.ameba.jp/user_images/20161206/16/ari-step/ab/e7/j/o0525080013815202959.jpg?caw=800" width="309" height="470" /></a></div><br>
 Both two of them come with the same appearance.<br>From their back appearance, staff in the booth could not find which is who.<br><br>
 BBK BRNK the giant of galaxy<br><br>is coming to climax!<br>Thank you for watching it!<br><br><br>*ari*
@@ -527,16 +527,16 @@ BBK BRNK the giant of galaxy<br><br>is coming to climax!<br>Thank you for watchi
 </div>
 
 <div class="pagingArea entryPaging">
-<a class="pagingList" href="http://ameblo.jp/ari-step/entrylist.html">Article List</a>
-&nbsp; | &nbsp;<a class="pagingNext" href="http://ameblo.jp/ari-step/entry-12224195011.html">4DX!!&nbsp;&raquo;</a>
+<a class="pagingList" href="https://ameblo.jp/ari-step/entrylist.html">Article List</a>
+&nbsp; | &nbsp;<a class="pagingNext" href="https://ameblo.jp/ari-step/entry-12224195011.html">4DX!!&nbsp;&raquo;</a>
 </div>
 
 <div class="articleImageListArea">
 <span class="articleImageHeading">Latest Articles with Images</span>
-<span class="articleImageListLink">&nbsp;<a href="http://ameblo.jp/ari-step/imagelist.html">More &gt;&gt;</a></span>
+<span class="articleImageListLink">&nbsp;<a href="https://ameblo.jp/ari-step/imagelist.html">More &gt;&gt;</a></span>
 <ul>
 <li>
-<a href="http://ameblo.jp/ari-step/entry-12224195011.html?frm_src=thumb_module">
+<a href="https://ameblo.jp/ari-step/entry-12224195011.html?frm_src=thumb_module">
 <img src="http://stat.ameba.jp/user_images/20161130/01/ari-step/4a/91/j/t02200124_0960054013809998471.jpg?cpd=110" width="110" height="110"  alt="4DX!!" class="articleImage" />
 <span class="articleImageTitle">4DX!!</span>
 </a>
@@ -559,7 +559,7 @@ BBK BRNK the giant of galaxy<br><br>is coming to climax!<br>Thank you for watchi
 <!--bottomPagingTop-->
 
 <div class="pagingArea detailPaging largePagingArea">
-<a class="skinSimpleBtn pagingNext" href="http://ameblo.jp/ari-step/entry-12224195011.html">4DX!!<span class="pagingArrow">&nbsp;&raquo;</span></a>
+<a class="skinSimpleBtn pagingNext" href="https://ameblo.jp/ari-step/entry-12224195011.html">4DX!!<span class="pagingArrow">&nbsp;&raquo;</span></a>
 </div>
 
 <div style="height:130px;text-align: center;">
@@ -575,9 +575,9 @@ BBK BRNK the giant of galaxy<br><br>is coming to climax!<br>Thank you for watchi
 
 <div class="globalLinkArea">
   <ul class="globalLinkAreaInner">
-    <li class="globalLinkNavItem globalLinkNavTop"><a class="skinImgBtnS blogTopBtn" href="http://ameblo.jp/ari-step/"><span>Blog Top</span></a></li>
-    <li class="globalLinkNavItem globalLinkNavArticle"><a class="skinImgBtnS articleListBtn" href="http://ameblo.jp/ari-step/entrylist.html"><span>Article List</span></a></li>
-    <li class="globalLinkNavItem globalLinkNavImgList"><a class="skinImgBtnS imageListBtn" href="http://ameblo.jp/ari-step/imagelist.html"><span>Image List</span></a></li>
+    <li class="globalLinkNavItem globalLinkNavTop"><a class="skinImgBtnS blogTopBtn" href="https://ameblo.jp/ari-step/"><span>Blog Top</span></a></li>
+    <li class="globalLinkNavItem globalLinkNavArticle"><a class="skinImgBtnS articleListBtn" href="https://ameblo.jp/ari-step/entrylist.html"><span>Article List</span></a></li>
+    <li class="globalLinkNavItem globalLinkNavImgList"><a class="skinImgBtnS imageListBtn" href="https://ameblo.jp/ari-step/imagelist.html"><span>Image List</span></a></li>
   </ul>
 </div>
 
@@ -719,13 +719,13 @@ Ari Ozawa
 <div class="skinMenuBody">
 
 <ul class="skinSubList">
-<li><a href="http://ameblo.jp/ari-step/entry-12226218315.html">Look at this :)</a></li>
-<li><a href="http://ameblo.jp/ari-step/entry-12224195011.html">4DX!!</a></li>
+<li><a href="https://ameblo.jp/ari-step/entry-12226218315.html">Look at this :)</a></li>
+<li><a href="https://ameblo.jp/ari-step/entry-12224195011.html">4DX!!</a></li>
 </ul>
 
 <div class="listLink">
-<a href="http://ameblo.jp/ari-step/entrylist.html" >List All</a>
-<p class="list"><span class="listImagetop"></span><a href="http://ameblo.jp/ari-step/imagelist.html" >Image List</a></p>
+<a href="https://ameblo.jp/ari-step/entrylist.html" >List All</a>
+<p class="list"><span class="listImagetop"></span><a href="https://ameblo.jp/ari-step/imagelist.html" >Image List</a></p>
 </div>
 
 </div>
@@ -743,7 +743,7 @@ Ari Ozawa
 <div class="calendar">
 <table>
 <caption>
-<a href="http://ameblo.jp/ari-step/archive-201611.html" class="pre">&lt;&lt;</a>December<a href="http://ameblo.jp/ari-step/archive-201701.html" class="next">&gt;&gt;</a></caption>
+<a href="https://ameblo.jp/ari-step/archive-201611.html" class="pre">&lt;&lt;</a>December<a href="https://ameblo.jp/ari-step/archive-201701.html" class="next">&gt;&gt;</a></caption>
 <tr id="weekID">
 <th class="sun">Sun</th>
 <th class="mon">Mon</th>
@@ -765,7 +765,7 @@ Ari Ozawa
 <tr>
 <td>4</td>
 <td>5</td>
-<td><a href="http://ameblo.jp/ari-step/day-20161206.html">6</a></td>
+<td><a href="https://ameblo.jp/ari-step/day-20161206.html">6</a></td>
 <td>7</td>
 <td>8</td>
 <td>9</td>
@@ -816,12 +816,12 @@ Ari Ozawa
 <div class="skinMenuBody">
 
 <ul class="skinSubList">
-<li><a href="http://ameblo.jp/ari-step/archive1-201612.html">Dec 2016 ( 1 )</a></li>
-<li><a href="http://ameblo.jp/ari-step/archive1-201611.html">Nov 2016 ( 10 )</a></li>
+<li><a href="https://ameblo.jp/ari-step/archive1-201612.html">Dec 2016 ( 1 )</a></li>
+<li><a href="https://ameblo.jp/ari-step/archive1-201611.html">Nov 2016 ( 10 )</a></li>
 </ul>
 
 <div class="listLink">
-<a href="http://ameblo.jp/ari-step/archiveentrylist-201612.html" >Show List</a>
+<a href="https://ameblo.jp/ari-step/archiveentrylist-201612.html" >Show List</a>
 </div>
 
 </div>
@@ -903,9 +903,9 @@ Ari Ozawa
 </div>
 </div>
 </div><ul class="footerNav">
-<li><a class="footerNavNext" href="http://ameblo.jp/ari-step/entry-12224195011.html"><div class="footPt23">Next</div></a></li>
+<li><a class="footerNavNext" href="https://ameblo.jp/ari-step/entry-12224195011.html"><div class="footPt23">Next</div></a></li>
 <li class="inactive"><span class="footerNavPrev"><div class="footPt23">Prev</div></span></li>
-<li><a class="footerNavlist" href="http://ameblo.jp/ari-step/entrylist.html"><div class="footPt15">Article List</div></a></li>
+<li><a class="footerNavlist" href="https://ameblo.jp/ari-step/entrylist.html"><div class="footPt15">Article List</div></a></li>
 <li><a id="footerNavTop" class="footerNavTop" href="#"><div class="footPt23">Go to Top</div></a></li>
 </ul>
 <!--bodyBottom-->
@@ -979,7 +979,7 @@ Ari Ozawa
 
 <img src="//ln.ameba.jp/v2/ra/sZofuVxH?qat=view&qv=1-15-0&qpi=article_blog-entry&qr=http%3A%2F%2Fameblo.jp%2Fari-step%2F&entry_id=%2212226218315%22&blogger_ameba_id=%22ari-step%22" style="display:none" />
 
-<img src="http://ameblo.jp/accesslog/BlogAccessLog?bnm=ari-step&referAddr=http://ameblo.jp/ari-step/&skincode=wu_womanblog_50" alt="" class="accessLog" />
+<img src="https://ameblo.jp/accesslog/BlogAccessLog?bnm=ari-step&referAddr=https://ameblo.jp/ari-step/&skincode=wu_womanblog_50" alt="" class="accessLog" />
 
 <img src="http://adt.measure.ameblo.jp/pc/ari-step/fb10e78f7474871ecee5a2515b1e49e93b0b1970" style="display:none;" />
 
@@ -990,7 +990,7 @@ Ari Ozawa
   window.ameblo = (typeof window.ameblo === 'object' && window.ameblo.nodeType !== 1) ? window.ameblo : {};
   window.ameblo.config = {
     urls: {
-      ameblo: 'http://ameblo.jp',
+      ameblo: 'https://ameblo.jp',
       blog: 'http://blog.ameba.jp',
       blogNews: 'http://blognews.ameba.jp',
       official: 'http://official.ameba.jp',
