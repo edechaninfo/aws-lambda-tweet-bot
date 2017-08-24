@@ -93,7 +93,7 @@ class TestBlogWatch(BaseTest):
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/fruits-box-blog/"
+            latest_id="https://ameblo.jp/fruits-box-blog/"
                       "entry-12208663600.html",
             search_condition="Ede:",
             body_format="[New Update] {title} -> {link} #Ede-chan"
@@ -114,10 +114,10 @@ class TestBlogWatch(BaseTest):
                          env['pubdate_indexes']['feed'])
 
         result_status_1 = "[New Update] Ede: Yoru-night! -> " + \
-            "http://ameblo.jp/fruits-box-blog/entry-12210698546.html " + \
+            "https://ameblo.jp/fruits-box-blog/entry-12210698546.html " + \
             "#Ede-chan"
         result_status_2 = "[New Update] Ede: Pop in Q -> " + \
-            "http://ameblo.jp/fruits-box-blog/entry-12208663602.html " + \
+            "https://ameblo.jp/fruits-box-blog/entry-12208663602.html " + \
             "#Ede-chan"
         self.assertIn(result_status_1, tw._update_statuses)
         self.assertIn(result_status_2, tw._update_statuses)
@@ -150,7 +150,7 @@ class TestBlogWatch(BaseTest):
         feed_item_1 = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/fruits-box-blog/"
+            latest_id="https://ameblo.jp/fruits-box-blog/"
                       "entry-12208663600.html",
             search_condition="Ede:",
             body_format="[New Update] {title} -> {link} #Ede-chan"
@@ -158,7 +158,7 @@ class TestBlogWatch(BaseTest):
         feed_item_2 = dict(
             id="feed_other",
             feed="http://otherexistsite.io/feed",
-            latest_id="http://ameblo.jp/otakublo/entry-12290698546.html",
+            latest_id="https://ameblo.jp/otakublo/entry-12290698546.html",
             search_condition="Hondo",
             body_format="[Guest Info] '{title}' -> {link} #Ede-chan"
         )
@@ -186,13 +186,13 @@ class TestBlogWatch(BaseTest):
                          env['pubdate_indexes']['feed_other'])
 
         result_status_1 = "[New Update] Ede: Yoru-night! -> " + \
-            "http://ameblo.jp/fruits-box-blog/entry-12210698546.html " + \
+            "https://ameblo.jp/fruits-box-blog/entry-12210698546.html " + \
             "#Ede-chan"
         result_status_2 = "[New Update] Ede: Pop in Q -> " + \
-            "http://ameblo.jp/fruits-box-blog/entry-12208663602.html " + \
+            "https://ameblo.jp/fruits-box-blog/entry-12208663602.html " + \
             "#Ede-chan"
         result_status_3 = "[Guest Info] 'Hondo-san has come as our guest'" + \
-            " -> http://ameblo.jp/otakublo/entry-12311554968.html #Ede-chan"
+            " -> https://ameblo.jp/otakublo/entry-12311554968.html #Ede-chan"
         self.assertIn(result_status_1, tw._update_statuses)
         self.assertIn(result_status_2, tw._update_statuses)
         self.assertIn(result_status_3, tw._update_statuses)
@@ -201,7 +201,7 @@ class TestBlogWatch(BaseTest):
         feed_item_1 = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/fruits-box-blog/"
+            latest_id="https://ameblo.jp/fruits-box-blog/"
                       "entry-12208663600.html",
             search_condition="Ede:",
             body_format="[New Update] {title} -> {link} #Ede-chan"
@@ -209,7 +209,7 @@ class TestBlogWatch(BaseTest):
         feed_item_2 = dict(
             id="feed_other",
             feed="http://otherexistsite.io/feed",
-            latest_id="http://ameblo.jp/otakublo/entry-12290698546.html",
+            latest_id="https://ameblo.jp/otakublo/entry-12290698546.html",
             search_condition="Hondo",
             body_format="[Guest Info] '{title}' -> {link} #Ede-chan"
         )
@@ -265,7 +265,7 @@ class TestBlogWatch(BaseTest):
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/fruits-box-blog/"
+            latest_id="https://ameblo.jp/fruits-box-blog/"
                       "entry-12208663600.html",
             search_condition="Ede:"
         )
@@ -293,7 +293,7 @@ class TestBlogWatch(BaseTest):
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/fruits-box-blog/"
+            latest_id="https://ameblo.jp/fruits-box-blog/"
                       "entry-12208663600.html",
             search_condition="Ede:",
             body_format="[New Update] {itle} -> {link} #Ede-chan"
@@ -341,7 +341,7 @@ class TestBlogWatch(BaseTest):
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/fruits-box-blog/"
+            latest_id="https://ameblo.jp/fruits-box-blog/"
                       "entry-12211554966.html",
             body_format="[New Update] {title} -> {link}",
             search_condition="Ede:"
@@ -366,7 +366,7 @@ class TestBlogWatch(BaseTest):
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/fruits-box-blog/"
+            latest_id="https://ameblo.jp/fruits-box-blog/"
                       "entry-12208663602.html",
             search_condition="Ede:",
             body_format="[New Update] {title} -> {link}"
@@ -418,7 +418,7 @@ class TestBlogWatch(BaseTest):
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/fruits-box-blog/"
+            latest_id="https://ameblo.jp/fruits-box-blog/"
                       "entry-12208663600.html",
             search_condition="Ede:",
             body_format="[New Update] {title} -> {link} #Ede-chan"
@@ -453,7 +453,7 @@ class TestBlogWatch(BaseTest):
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/ari-step/entry-12224195010.html",
+            latest_id="https://ameblo.jp/ari-step/entry-12224195010.html",
             body_search=True,
             body_search_conditions=["Hondo-chan"],
             body_format="[New Update] {title} -> {link} #Ari-chan #Ede-chan"
@@ -462,7 +462,7 @@ class TestBlogWatch(BaseTest):
         self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data3})
         req = FakeRequests(
-            {'http://ameblo.jp/ari-step/entry-12226218315.html':
+            {'https://ameblo.jp/ari-step/entry-12226218315.html':
              sample_ameblo_blog_body})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
@@ -474,7 +474,7 @@ class TestBlogWatch(BaseTest):
 
         env = self.get_env_from_local_dynamodb(self.service_id)
         result_status = "[New Update] Look this -> " + \
-            "http://ameblo.jp/ari-step/entry-12226218315.html " + \
+            "https://ameblo.jp/ari-step/entry-12226218315.html " + \
             "#Ari-chan #Ede-chan"
         self.assertEqual(1, len(tw._update_statuses))
         self.assertIn(result_status, tw._update_statuses)
@@ -486,7 +486,7 @@ class TestBlogWatch(BaseTest):
         feed_item = dict(
             id="feed",
             feed="http://existsite.io/feed",
-            latest_id="http://ameblo.jp/ari-step/entry-12224195010.html",
+            latest_id="https://ameblo.jp/ari-step/entry-12224195010.html",
             body_search=True,
             body_search_conditions=["4DX"],
             body_format="[New Update] {title} -> {link} #Ari-chan #Ede-chan"
@@ -495,7 +495,7 @@ class TestBlogWatch(BaseTest):
         self.add_items_to_local_dynamodb('blog_watch', [feed_item])
         feed = FakeFeedparser({"http://existsite.io/feed": sample_blog_data3})
         req = FakeRequests(
-            {'http://ameblo.jp/ari-step/entry-12226218315.html':
+            {'https://ameblo.jp/ari-step/entry-12226218315.html':
              sample_ameblo_blog_body})
         env = {'twitter_env': 'test',
                'pubdate_indexes': {
@@ -523,17 +523,17 @@ class TestBlogWatch(BaseTest):
                 obj(published_parsed=time.strptime('2016/08/21 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='Supply Water',
-                    link='http://ameblo.jp/ogurayui-0815/'
+                    link='https://ameblo.jp/ogurayui-0815/'
                          'entry-12187666106.html'),
                 obj(published_parsed=time.strptime('2016/08/01 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='Hot and Spicy',
-                    link='http://ameblo.jp/ogurayui-0815/'
+                    link='https://ameblo.jp/ogurayui-0815/'
                          'entry-12186656735.html'),
                 obj(published_parsed=time.strptime('2016/07/21 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='Summer Vacation',
-                    link='http://ameblo.jp/ogurayui-0815/'
+                    link='https://ameblo.jp/ogurayui-0815/'
                          'entry-12186044375.html')
             ]
         }
@@ -547,17 +547,17 @@ class TestBlogWatch(BaseTest):
                 obj(published_parsed=time.strptime('2016/08/21 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='Pop in Q',
-                    link='http://ameblo.jp/ishiharakaori-0806/'
+                    link='https://ameblo.jp/ishiharakaori-0806/'
                          'entry-12225358373.html'),
                 obj(published_parsed=time.strptime('2016/08/01 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='Cocon Poi Poi Cocotama',
-                    link='http://ameblo.jp/ishiharakaori-0806/'
+                    link='https://ameblo.jp/ishiharakaori-0806/'
                          'entry-12224315509.html'),
                 obj(published_parsed=time.strptime('2016/07/21 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='Event',
-                    link='http://ameblo.jp/ishiharakaori-0806/'
+                    link='https://ameblo.jp/ishiharakaori-0806/'
                          'entry-12223186447.html')
             ]
         }
@@ -571,17 +571,17 @@ class TestBlogWatch(BaseTest):
                 obj(published_parsed=time.strptime('2016/08/21 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='Birthday',
-                    link='http://ameblo.jp/tanoue-marina/'
+                    link='https://ameblo.jp/tanoue-marina/'
                          'entry-12232581672.html'),
                 obj(published_parsed=time.strptime('2016/08/01 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='VR',
-                    link='http://ameblo.jp/tanoue-marina/'
+                    link='https://ameblo.jp/tanoue-marina/'
                          'entry-12232298510.html'),
                 obj(published_parsed=time.strptime('2016/07/21 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='Greeting 2',
-                    link='http://ameblo.jp/tanoue-marina/'
+                    link='https://ameblo.jp/tanoue-marina/'
                          'entry-12231980149.html')
             ]
         }
@@ -595,21 +595,21 @@ class TestBlogWatch(BaseTest):
                 obj(published_parsed=time.strptime('2016/08/21 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='In these days...',
-                    link='http://ameblo.jp/ari-step/entry-12233144905.html'),
+                    link='https://ameblo.jp/ari-step/entry-12233144905.html'),
                 obj(published_parsed=time.strptime('2016/08/01 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='Look this',
-                    link='http://ameblo.jp/ari-step/entry-12226218315.html'),
+                    link='https://ameblo.jp/ari-step/entry-12226218315.html'),
                 obj(published_parsed=time.strptime('2016/07/21 23:14:14',
                                                    '%Y/%m/%d %H:%M:%S'),
                     title='4DX!!',
-                    link='http://ameblo.jp/ari-step/entry-12224195011.html')
+                    link='https://ameblo.jp/ari-step/entry-12224195011.html')
             ]
         }
         ogusan_feed_item = dict(
             id="ogusan",
             feed="http://existsite.io/ogusan",
-            latest_id="http://ameblo.jp/ogurayui-0815/entry-12184451116.html",
+            latest_id="https://ameblo.jp/ogurayui-0815/entry-12184451116.html",
             body_format="[New Update] {title} -> {link} #Yui-chan #Ede-chan",
             body_search=True,
             body_search_conditions=[u"\u3048\u30fc\u3067\u3061\u3083\u3093"]
@@ -618,7 +618,7 @@ class TestBlogWatch(BaseTest):
         kyarisan_feed_item = dict(
             id="kyarisan",
             feed="http://existsite.io/kyarisan",
-            latest_id="http://ameblo.jp/ishiharakaori-0806/"
+            latest_id="https://ameblo.jp/ishiharakaori-0806/"
                       "entry-12223056549.html",
             body_format="[New Update] {title} -> {link} #Kyari-san #Ede-chan",
             body_search=True,
@@ -628,7 +628,7 @@ class TestBlogWatch(BaseTest):
         tanoway_feed_item = dict(
             id="tanoway",
             feed="http://existsite.io/tanoway",
-            latest_id="http://ameblo.jp/tanoue-marina/entry-12231636584.html",
+            latest_id="https://ameblo.jp/tanoue-marina/entry-12231636584.html",
             body_format="[New Update] {title} -> {link} #Tano-way #Ede-chan",
             body_search=True,
             body_search_conditions=[u"\u672c\u6e21"]
@@ -637,7 +637,7 @@ class TestBlogWatch(BaseTest):
         arichan_feed_item = dict(
             id="arichan",
             feed="http://existsite.io/arichan",
-            latest_id="http://ameblo.jp/ari-step/entry-12223871525.html",
+            latest_id="https://ameblo.jp/ari-step/entry-12223871525.html",
             body_format="[New Update] {title} -> {link} #Ari-chan #Ede-chan",
             body_search=True,
             body_search_conditions=[u"\u672c\u6e21"]

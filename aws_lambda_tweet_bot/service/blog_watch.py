@@ -30,7 +30,7 @@ logger = logging.getLogger('aws_lambda_tweet_bot.service.blog_watch')
 logger.setLevel(logging.INFO)
 
 
-AMEBLO_LINK_PTN = r"http://ameblo\.jp/[^/]+/entry-\d+\.html"
+AMEBLO_LINK_PTN = r"https?://ameblo\.jp/[^/]+/entry-\d+\.html"
 
 
 class AmebloBodyParser(HTMLParser):
